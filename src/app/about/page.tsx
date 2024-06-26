@@ -36,7 +36,7 @@ const Page = () => {
         console.log(error);
       }
     } else {
-      console.log("No file selected");
+      console.log("No file selected ");
     }
   };
   return (
