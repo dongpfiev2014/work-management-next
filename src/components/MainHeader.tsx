@@ -1,12 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import logoImg from "@/assets/checklist.png";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const MainHeader = () => {
+  const path = usePathname();
+  console.log(path);
   return (
     <header>
       <Link href="/">
-        <Image src={logoImg} alt="Work Management" />
+        <Image src={logoImg} alt="Work Management" priority />
         <p>Let get started</p>
       </Link>
       <nav>
@@ -17,7 +22,7 @@ const MainHeader = () => {
           <li>
             <Link href="/about">About</Link>
           </li>
-          <p>fdsafasd1234567891</p>
+          <p>fdsafasd123456789178</p>
         </ul>
       </nav>
     </header>
