@@ -1,7 +1,7 @@
 export default function Page({ params }) {
   return (
     <div>
-      <h1>Blogspot 123</h1>
+      <h1>Blog details</h1>
       <p>{params.slug}</p>
     </div>
   );
