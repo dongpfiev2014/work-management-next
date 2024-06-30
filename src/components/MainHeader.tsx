@@ -22,7 +22,6 @@ const MainHeader = () => {
           <li>
             <Link href="/about">About</Link>
           </li>
-          <p>fdsafasd123456789178</p>
         </ul>
       </nav>
     </header>
