@@ -6,10 +6,10 @@ export default function Page() {
       <div>
         <h1>Page</h1>
         <p>
-          <Link href="/blog/post-1">Post-1</Link>
+          <Link href="/blog/post-1">Post-100</Link>
         </p>
         <p>
-          <Link href="/blog/post-2">Post-2</Link>
+          <Link href="/blog/post-2">Post-234</Link>
         </p>
       </div>
     </main>
