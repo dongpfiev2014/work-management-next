@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 export default function Page() {
+  console.log("rendering in server");
   return (
     <main>
       <div>
