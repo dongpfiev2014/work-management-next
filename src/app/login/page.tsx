@@ -15,8 +15,6 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Loading from "../loading";
-import { useDispatch, useSelector } from "react-redux";
-import { userInfo } from "@/selector/userSelector";
 import styles from "./page.module.css";
 import Link from "next/link";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
@@ -25,7 +23,6 @@ import { login } from "@/reducer/authReducer";
 
 const LoginForm = () => {
   const router = useRouter();
-  const userState = useSelector(userInfo);
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   const [loading, setLoading] = useState(true);
@@ -50,10 +47,10 @@ const LoginForm = () => {
     );
   const onFinish = () => {
     dispatch(login({ email, password })).then((action) => {
-      if (action.payload) {
-        console.log(action.payload);
-        localStorage.setItem("accessToken", action.payload.token);
-        // router.push("/");
+      const response = action.payload;
+      if (response.success) {
+        router.push("/");
+        localStorage.setItem("accessToken", response.accessToken);
         setShowError(false);
       } else setShowError(true);
     });

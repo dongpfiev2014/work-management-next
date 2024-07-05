@@ -1,6 +1,7 @@
 import { UserState } from "@/types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { url } from "inspector";
 
 const initialState: UserState = {
   currentUser: undefined,
@@ -10,7 +11,7 @@ const initialState: UserState = {
   error: null,
 };
 
-const baseUrl = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}/${process.env.VERSION}`;
+const baseUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}/${process.env.NEXT_PUBLIC_VERSION}`;
 
 export const register = createAsyncThunk(
   "auth/register",
@@ -27,13 +28,11 @@ export const register = createAsyncThunk(
         data: data,
       };
       const response = await axios.request(config);
-      console.log(JSON.stringify(response.data));
+      console.log(response.data);
       return response.data;
     } catch (err: any) {
-      // return thunkAPI.rejectWithValue(
-      //   err.response?.data?.errors || err.message
-      // );
-      console.log(err);
+      console.log(err.response?.data);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
 );
@@ -52,16 +51,12 @@ export const login = createAsyncThunk(
         },
         data: data,
       };
-      console.log(config);
       const response = await axios.request(config);
-      console.log(response);
-      console.log(JSON.stringify(response.data));
+      console.log(response.data);
       return response.data;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(
-        err.response?.data?.errors || err.message
-      );
-      console.log(err);
+      console.log(err.response?.data);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
 );
@@ -78,12 +73,33 @@ export const fetchUser = createAsyncThunk(
         },
       };
       const response = await axios.request(config);
+      console.log(response.data);
       return response.data;
     } catch (err: any) {
-      // return thunkAPI.rejectWithValue(
-      //   err.response?.data?.errors || err.message
-      // );
-      console.log(err);
+      console.log(err.response?.data);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+export const signout = createAsyncThunk(
+  "auth/signout",
+  async (accessToken: string, thunkAPI) => {
+    try {
+      localStorage.removeItem("accessToken");
+      const config = {
+        method: "post",
+        url: `${baseUrl}/auth/signout`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
+      const response = await axios.request(config);
+      console.log(response.data);
+      return response.data;
+    } catch (err: any) {
+      console.log(err.response?.data);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
 );
@@ -100,12 +116,13 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentUser = action.payload;
+        state.currentUser = action.payload.data;
+        state.message = action.payload.message;
         state.success = true;
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
-        state.message = action.error.message || "Registration failed";
+        state.message = "Registration failed";
         state.error = action.payload as string;
         state.success = false;
       });
@@ -116,12 +133,13 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentUser = action.payload;
+        state.currentUser = action.payload.data;
+        state.message = action.payload.message;
         state.success = true;
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
-        state.message = action.error.message || "Login failed";
+        state.message = "Login failed";
         state.error = action.payload as string;
         state.success = false;
       });
@@ -132,15 +150,19 @@ const authSlice = createSlice({
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentUser = action.payload;
+        state.currentUser = action.payload.data;
+        state.message = action.payload.message;
         state.success = true;
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.message = action.error.message || "Fetching user failed";
+        state.message = "Fetching user failed";
         state.error = action.payload as string;
         state.success = false;
       });
+    builder.addCase(signout.fulfilled, (state) => {
+      state = initialState;
+    });
   },
 });
 

@@ -1,17 +1,30 @@
 "use client";
 
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { signout } from "@/reducer/authReducer";
+import { userInfo } from "@/selector/userSelector";
+import { Button } from "antd";
+// import logoImg from "@/assets/checklist.png";
+// import Image from "next/image";
 import Link from "next/link";
-import logoImg from "@/assets/checklist.png";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const MainHeader = () => {
-  const path = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const userState = useAppSelector(userInfo);
+  console.log(userState);
+  const accessToken =
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
+  const handleSignOut = () => {
+    if (accessToken) {
+      dispatch(signout(accessToken));
+      router.push("/login");
+    }
+  };
   return (
-    <header>
-      <Link href="/">
-        <Image src={logoImg} alt="Work Management" priority />
-      </Link>
+    <header className="d-flex ">
       <nav>
         <ul>
           <li>
@@ -25,7 +38,7 @@ const MainHeader = () => {
           </li>
         </ul>
       </nav>
-
+      <Button onClick={handleSignOut}>Sign Out</Button>
     </header>
   );
 };
