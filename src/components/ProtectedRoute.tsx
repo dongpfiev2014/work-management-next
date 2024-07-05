@@ -20,7 +20,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        if (accessToken) {
+        if (
+          accessToken &&
+          accessToken !== "undefined" &&
+          accessToken !== null
+        ) {
           // Gọi action fetchUser với accessToken
           await dispatch(fetchUser(accessToken));
         } else {

@@ -21,7 +21,7 @@ const IntroComponent = () => {
   return (
     <div
       className="position-relative"
-      style={{ height: "100vh", overflow: "hidden" }}
+      style={{ height: "100vh", overflow: "hidden", borderRadius: "20px" }}
     >
       <div className="overlay"></div>
       <video

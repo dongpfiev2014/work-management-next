@@ -8,6 +8,7 @@ import Loading from "./loading";
 import Script from "next/script";
 import { ConfigProvider } from "antd";
 import MainLayout from "@/components/MainLayout";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 const font = Source_Sans_3({
   subsets: ["latin"],
@@ -37,20 +38,27 @@ export default function RootLayout({
       <body className={font.className}>
         <StoreProvider>
           <Suspense fallback={<Loading loading={true} />}>
-            <ConfigProvider
-              theme={{
-                token: {
-                  fontFamily: font.style.fontFamily,
-                  fontSize: 14,
-                },
-              }}
-            >
-              <ProtectedRoute>
-                <MainLayout>
-                  <main>{children}</main>
-                </MainLayout>
-              </ProtectedRoute>
-            </ConfigProvider>
+            <AntdRegistry>
+              <ConfigProvider
+                theme={{
+                  token: {
+                    fontFamily: font.style.fontFamily,
+                    fontSize: 14,
+                  },
+                  components: {
+                    Form: {
+                      marginLG: 15,
+                    },
+                  },
+                }}
+              >
+                <ProtectedRoute>
+                  <MainLayout>
+                    <main>{children}</main>
+                  </MainLayout>
+                </ProtectedRoute>
+              </ConfigProvider>
+            </AntdRegistry>
           </Suspense>
         </StoreProvider>
       </body>

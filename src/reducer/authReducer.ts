@@ -10,7 +10,7 @@ const initialState: UserState = {
   error: null,
 };
 
-const baseUrl = process.env.SERVER_URL;
+const baseUrl = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}/${process.env.VERSION}`;
 
 export const register = createAsyncThunk(
   "auth/register",
@@ -33,6 +33,34 @@ export const register = createAsyncThunk(
       // return thunkAPI.rejectWithValue(
       //   err.response?.data?.errors || err.message
       // );
+      console.log(err);
+    }
+  }
+);
+
+export const login = createAsyncThunk(
+  "auth/login",
+  async (userData: any, thunkAPI) => {
+    try {
+      const data = JSON.stringify(userData);
+      const config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: `${baseUrl}/auth/login`,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+      console.log(config);
+      const response = await axios.request(config);
+      console.log(response);
+      console.log(JSON.stringify(response.data));
+      return response.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.errors || err.message
+      );
       console.log(err);
     }
   }
@@ -78,6 +106,22 @@ const authSlice = createSlice({
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
         state.message = action.error.message || "Registration failed";
+        state.error = action.payload as string;
+        state.success = false;
+      });
+    builder
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentUser = action.payload;
+        state.success = true;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.message = action.error.message || "Login failed";
         state.error = action.payload as string;
         state.success = false;
       });

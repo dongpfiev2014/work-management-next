@@ -22,3 +22,7 @@ body {
 video {
   object-fit: cover;
 }
+
+/* .ant-form-item {
+  margin-bottom: 0px !important;
+} */
