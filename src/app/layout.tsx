@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Source_Sans_3 } from "next/font/google";
 import "./globals.css";
-import MainHeader from "@/components/MainHeader";
-import MainFooter from "@/components/MainFooter";
 import StoreProvider from "./StoreProvider";
+import ProtectedRoute from "../components/ProtectedRoute";
+import { Suspense } from "react";
+import Loading from "./loading";
+import Script from "next/script";
+import { ConfigProvider } from "antd";
+import MainLayout from "@/components/MainLayout";
 
-const inter = Inter({ subsets: ["latin"] });
+const font = Source_Sans_3({
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Work Management",
@@ -19,13 +26,39 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <head>
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossOrigin="anonymous"
+        />
+      </head>
+      <body className={font.className}>
         <StoreProvider>
-          <MainHeader />
-          <main>{children}</main>
-          <MainFooter />
+          <Suspense fallback={<Loading loading={true} />}>
+            <ConfigProvider
+              theme={{
+                token: {
+                  fontFamily: font.style.fontFamily,
+                  fontSize: 14,
+                },
+              }}
+            >
+              <ProtectedRoute>
+                <MainLayout>
+                  <main>{children}</main>
+                </MainLayout>
+              </ProtectedRoute>
+            </ConfigProvider>
+          </Suspense>
         </StoreProvider>
       </body>
+      <Script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossOrigin="anonymous"
+      />
     </html>
   );
 }

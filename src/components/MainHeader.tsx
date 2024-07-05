@@ -7,12 +7,10 @@ import { usePathname } from "next/navigation";
 
 const MainHeader = () => {
   const path = usePathname();
-  console.log(path);
   return (
     <header>
       <Link href="/">
         <Image src={logoImg} alt="Work Management" priority />
-        <p>Let get started</p>
       </Link>
       <nav>
         <ul>
@@ -22,8 +20,12 @@ const MainHeader = () => {
           <li>
             <Link href="/about">About</Link>
           </li>
+          <li>
+            <Link href="/function">Function</Link>
+          </li>
         </ul>
       </nav>
+
     </header>
   );
 };

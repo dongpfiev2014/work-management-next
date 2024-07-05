@@ -1,8 +1,11 @@
+import authReducer from "@/reducer/authReducer";
 import { configureStore } from "@reduxjs/toolkit";
 
 export const makeStore = () => {
   return configureStore({
-    reducer: {},
+    reducer: {
+      auth: authReducer,
+    },
     devTools: process.env.NODE_ENV !== "production", // Enable Redux DevTools only in development mode
   });
 };
