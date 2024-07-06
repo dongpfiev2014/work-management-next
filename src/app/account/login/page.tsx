@@ -88,7 +88,7 @@ const LoginForm = () => {
           >
             <Flex vertical gap="middle" align="center" justify="center">
               <h1>Login</h1>
-              <Typography.Text>
+              <Typography.Text style={{ textAlign: "center" }}>
                 {"Welcome back! Let's take you to your account."}
               </Typography.Text>
               <Button icon={<GoogleOutlined />} block type="link">
@@ -163,7 +163,9 @@ const LoginForm = () => {
               </Button>
             </Form.Item>
             <Form.Item className="d-flex justify-content-center align-items-center text-secondary">
-              <Typography.Text style={{ fontSize: "13px" }}>
+              <Typography.Text
+                style={{ fontSize: "13px", textAlign: "center" }}
+              >
                 {
                   "By continuing to use our services, you acknowledge that you have both read and agree to our Terms of Service and Privacy Policy."
                 }

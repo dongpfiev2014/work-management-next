@@ -8,7 +8,6 @@ import {
   Form,
   Input,
   message,
-  Row,
   Typography,
 } from "antd";
 import { useRouter } from "next/navigation";
@@ -16,15 +15,21 @@ import React, { useEffect, useState } from "react";
 import Loading from "../../loading";
 import styles from "./page.module.css";
 import Link from "next/link";
-import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
+import {
+  MailOutlined,
+  LockOutlined,
+  GoogleOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { useAppDispatch } from "@/lib/hooks";
-import { login } from "@/reducer/authReducer";
+import { register } from "@/reducer/authReducer";
 
 const SignUpForm = () => {
   const router = useRouter();
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   const [loading, setLoading] = useState(true);
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState(false);
@@ -48,7 +53,7 @@ const SignUpForm = () => {
 
   const onFinish = () => {
     setShowError(false);
-    dispatch(login({ email, password })).then((action: any) => {
+    dispatch(register({ fullName, email, password })).then((action: any) => {
       const response = action.payload;
       if (response.success) {
         success();
@@ -62,7 +67,7 @@ const SignUpForm = () => {
     messageApi
       .open({
         type: "success",
-        content: "Login successful!",
+        content: "Register successful!",
         duration: 1,
       })
       .then(() =>
@@ -89,7 +94,7 @@ const SignUpForm = () => {
           >
             <Flex vertical gap="middle" align="center" justify="center">
               <h1>Sign Up</h1>
-              <Typography.Text>
+              <Typography.Text style={{ textAlign: "center" }}>
                 {
                   "Create an account to track your progress, showcase your skill-set and be a part of the community."
                 }
@@ -99,6 +104,24 @@ const SignUpForm = () => {
               </Button>
               <Divider plain>OR</Divider>
             </Flex>
+            <Form.Item
+              name="fullName"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your Full Name!",
+                },
+              ]}
+            >
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="Full Name"
+                allowClear
+                size="middle"
+                value={email}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+            </Form.Item>
             <Form.Item
               name="email"
               rules={[
@@ -163,7 +186,9 @@ const SignUpForm = () => {
               </Button>
             </Form.Item>
             <Form.Item className="d-flex justify-content-center align-items-center text-secondary">
-              <Typography.Text style={{ fontSize: "13px" }}>
+              <Typography.Text
+                style={{ fontSize: "13px", textAlign: "center" }}
+              >
                 {
                   "By continuing to use our services, you acknowledge that you have both read and agree to our Terms of Service and Privacy Policy."
                 }
@@ -174,7 +199,7 @@ const SignUpForm = () => {
             {showError && (
               <Alert
                 message="Error"
-                description="Invalid email or password."
+                description="Your email has already been used!"
                 type="error"
                 showIcon
                 closable
