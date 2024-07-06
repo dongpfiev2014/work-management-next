@@ -1,7 +1,6 @@
 import { UserState } from "@/types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { url } from "inspector";
 
 const initialState: UserState = {
   currentUser: undefined,

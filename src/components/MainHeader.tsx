@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { signout } from "@/reducer/authReducer";
 import { userInfo } from "@/selector/userSelector";
-import { Button } from "antd";
+import { Button, message } from "antd";
 // import logoImg from "@/assets/checklist.png";
 // import Image from "next/image";
 import Link from "next/link";
@@ -16,15 +16,35 @@ const MainHeader = () => {
   console.log(userState);
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  const [messageApi, contextHolder] = message.useMessage();
 
   const handleSignOut = () => {
     if (accessToken) {
       dispatch(signout(accessToken));
-      router.push("/login");
+      messageLogOut();
     }
   };
+
+  const messageLogOut = () => {
+    messageApi
+      .open({
+        type: "success",
+        content: "Sign out successful!",
+        duration: 0.5,
+      })
+      .then(() =>
+        messageApi.open({
+          type: "loading",
+          content: "Redirecting to login page...",
+          duration: 1,
+          onClose: () => router.push("/account/login"),
+        })
+      );
+  };
+
   return (
     <header className="d-flex ">
+      {contextHolder}
       <nav>
         <ul>
           <li>

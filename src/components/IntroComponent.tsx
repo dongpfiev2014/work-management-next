@@ -21,7 +21,7 @@ const IntroComponent = () => {
   return (
     <div
       className="position-relative"
-      style={{ height: "100vh", overflow: "hidden", borderRadius: "20px" }}
+      style={{ height: "100vh", borderRadius: "20px", overflow: "hidden" }}
     >
       <div className="overlay"></div>
       <video
@@ -31,7 +31,7 @@ const IntroComponent = () => {
         autoPlay
         loop
         muted
-        style={{ cursor: "pointer" }}
+        style={{ cursor: "pointer", borderRadius: "20px" }}
       />
       <Button
         className="position-absolute bottom-0 start-0 mb-4"

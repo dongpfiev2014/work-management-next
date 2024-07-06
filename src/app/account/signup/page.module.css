@@ -1,0 +1,31 @@
+.wrapper {
+  background-color: lightsteelblue;
+  height: 100%;
+  width: 100%;
+}
+
+.main {
+  background-color: white;
+  height: 100%;
+  width: 100%;
+  max-height: 100vh;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.formWrapper {
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  /* border: 1px solid #d9d9d9; */
+  border-radius: "10px";
+  background-color: "#ffffff";
+}
+
+.showError {
+  height: 100px;
+}

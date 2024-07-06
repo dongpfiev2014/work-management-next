@@ -11,7 +11,8 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login" || pathname === "/signup";
+  const isLoginPage =
+    pathname === "/account/login" || pathname === "/account/signup";
 
   return (
     <>

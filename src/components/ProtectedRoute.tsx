@@ -30,16 +30,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             const response = action.payload;
             if (!response.success) {
               localStorage.removeItem("accessToken");
-              router.push("/login");
+              router.push("/account/login");
             }
           });
         } else {
-          router.push("/login");
+          router.push("/account/login");
         }
       } catch (error) {
         console.error("Error fetching user info:", error);
         localStorage.removeItem("accessToken");
-        router.push("/login");
+        router.push("/account/login");
       }
     };
     fetchUserInfo();
@@ -49,7 +49,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     if (userState.currentUser) {
       if (!userState.success) {
         localStorage.removeItem("accessToken");
-        router.push("/login");
+        router.push("/account/login");
       }
     }
   }, [userState, router]);
