@@ -8,7 +8,6 @@ import {
   Form,
   Input,
   message,
-  Row,
   Typography,
 } from "antd";
 import { useRouter } from "next/navigation";
@@ -17,7 +16,7 @@ import Loading from "../../loading";
 import styles from "./page.module.css";
 import Link from "next/link";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
-import { useAppDispatch } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { login } from "@/reducer/authReducer";
 
 const LoginForm = () => {
@@ -37,7 +36,7 @@ const LoginForm = () => {
     } else {
       setLoading(false);
     }
-  }, [setLoading, accessToken, router]);
+  }, []);
 
   if (loading)
     return (
@@ -91,6 +90,23 @@ const LoginForm = () => {
               <Typography.Text style={{ textAlign: "center" }}>
                 {"Welcome back! Let's take you to your account."}
               </Typography.Text>
+              <Typography.Text style={{ textAlign: "center" }}>
+                {
+                  "You can log in using your email or use the credentials below to explore the website:"
+                }
+              </Typography.Text>
+              <div className={styles.credentials}>
+                <div>
+                  <Typography.Text>{"Email: "}</Typography.Text>
+                  <Typography.Text strong>
+                    {"user@example.com "}
+                  </Typography.Text>
+                </div>
+                <div>
+                  <Typography.Text>{"Password: "}</Typography.Text>
+                  <Typography.Text strong>{"Password123@"}</Typography.Text>
+                </div>
+              </div>
               <Button icon={<GoogleOutlined />} block type="link">
                 {"Continue with Google"}
               </Button>

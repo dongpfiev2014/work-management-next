@@ -4,12 +4,11 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { signout } from "@/reducer/authReducer";
 import { userInfo } from "@/selector/userSelector";
 import { Button, message } from "antd";
-// import logoImg from "@/assets/checklist.png";
-// import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import React from "react";
 
-const MainHeader = () => {
+const MainHeader: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const userState = useAppSelector(userInfo);
@@ -20,8 +19,12 @@ const MainHeader = () => {
 
   const handleSignOut = () => {
     if (accessToken) {
-      dispatch(signout(accessToken));
-      messageLogOut();
+      dispatch(signout()).then((action) => {
+        const response = action.payload;
+        if (response.success) {
+          messageLogOut();
+        }
+      });
     }
   };
 

@@ -3,6 +3,8 @@
 import React, { useRef, useState } from "react";
 import { Button } from "antd";
 import { PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
+import { useAppSelector } from "@/lib/hooks";
+import { userInfo } from "@/selector/userSelector";
 
 const IntroComponent = () => {
   const videoRef = useRef<HTMLVideoElement>(null);

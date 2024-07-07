@@ -1,6 +1,6 @@
+import axiosClient from "@/apis/axiosClient";
 import { UserState } from "@/types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 
 const initialState: UserState = {
   currentUser: undefined,
@@ -10,28 +10,17 @@ const initialState: UserState = {
   error: null,
 };
 
-const baseUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}/${process.env.NEXT_PUBLIC_VERSION}`;
-
 export const register = createAsyncThunk(
   "auth/register",
   async (userData: any, thunkAPI) => {
     try {
       const data = JSON.stringify(userData);
-      const config = {
-        method: "post",
-        maxBodyLength: Infinity,
-        url: `${baseUrl}/auth/signup`,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: data,
-      };
-      const response = await axios.request(config);
+      const response = await axiosClient.post("/auth/signup", data);
       console.log(response.data);
       return response.data;
     } catch (err: any) {
       console.log(err.response);
-      return thunkAPI.rejectWithValue(err.response || err.message);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
 );
@@ -41,67 +30,41 @@ export const login = createAsyncThunk(
   async (userData: any, thunkAPI) => {
     try {
       const data = JSON.stringify(userData);
-      const config = {
-        method: "post",
-        maxBodyLength: Infinity,
-        url: `${baseUrl}/auth/login`,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: data,
-      };
-      const response = await axios.request(config);
+      const response = await axiosClient.post("/auth/login", data);
       console.log(response.data);
       return response.data;
     } catch (err: any) {
       console.log(err.response);
-      return thunkAPI.rejectWithValue(err.response || err.message);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
 );
 
 export const fetchUser = createAsyncThunk(
   "auth/fetchUser",
-  async (accessToken: string, thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
-      const config = {
-        method: "get",
-        url: `${baseUrl}/auth/user`,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      };
-      const response = await axios.request(config);
+      const response = await axiosClient.get("/auth/user");
       console.log(response.data);
       return response.data;
     } catch (err: any) {
       console.log(err.response);
-      return thunkAPI.rejectWithValue(err.response || err.message);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
 );
 
-export const signout = createAsyncThunk(
-  "auth/signout",
-  async (accessToken: string, thunkAPI) => {
-    try {
-      localStorage.removeItem("accessToken");
-      const config = {
-        method: "post",
-        url: `${baseUrl}/auth/signout`,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      };
-      const response = await axios.request(config);
-      console.log(response.data);
-      return response.data;
-    } catch (err: any) {
-      console.log(err.response);
-      return thunkAPI.rejectWithValue(err.response || err.message);
-    }
+export const signout = createAsyncThunk("auth/signout", async (_, thunkAPI) => {
+  try {
+    const response = await axiosClient.post("/auth/signout");
+    localStorage.removeItem("accessToken");
+    console.log(response.data);
+    return response.data;
+  } catch (err: any) {
+    console.log(err.response);
+    return thunkAPI.rejectWithValue(err.response?.data || err.message);
   }
-);
+});
 
 const authSlice = createSlice({
   name: "auth",
@@ -159,9 +122,18 @@ const authSlice = createSlice({
         state.error = action.payload as string;
         state.success = false;
       });
-    builder.addCase(signout.fulfilled, (state) => {
-      state = initialState;
-    });
+    builder
+      .addCase(signout.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signout.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentUser = action.payload.data;
+        state.message = action.payload.message;
+        state.success = false;
+        state.error = null;
+      });
   },
 });
 

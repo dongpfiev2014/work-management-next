@@ -26,7 +26,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           accessToken !== null
         ) {
           // Gọi action fetchUser với accessToken
-          await dispatch(fetchUser(accessToken)).then((action) => {
+          await dispatch(fetchUser()).then((action) => {
             const response = action.payload;
             if (!response.success) {
               localStorage.removeItem("accessToken");
@@ -43,7 +43,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       }
     };
     fetchUserInfo();
-  }, [dispatch, accessToken, router]);
+  }, []);
 
   useEffect(() => {
     if (userState.currentUser) {
@@ -52,7 +52,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         router.push("/account/login");
       }
     }
-  }, [userState, router]);
+  }, []);
 
   return <>{children}</>;
 };

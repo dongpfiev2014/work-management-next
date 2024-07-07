@@ -26,6 +26,10 @@
   background-color: "#ffffff";
 }
 
+.credentials {
+  display: flex;
+  flex-direction: column;
+}
 .showError {
   height: 100px;
 }

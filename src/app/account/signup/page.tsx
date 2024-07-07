@@ -43,7 +43,7 @@ const SignUpForm = () => {
     } else {
       setLoading(false);
     }
-  }, [setLoading, accessToken, router]);
+  }, []);
 
   if (loading)
     return (
@@ -60,7 +60,9 @@ const SignUpForm = () => {
         success();
         localStorage.setItem("accessToken", response.accessToken);
         setShowError(false);
-      } else setShowError(true);
+      } else {
+        setShowError(true);
+      }
     });
   };
 
