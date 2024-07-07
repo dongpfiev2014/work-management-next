@@ -30,8 +30,8 @@ export const register = createAsyncThunk(
       console.log(response.data);
       return response.data;
     } catch (err: any) {
-      console.log(err.response?.data);
-      return thunkAPI.rejectWithValue(err.response?.data || err.message);
+      console.log(err.response);
+      return thunkAPI.rejectWithValue(err.response || err.message);
     }
   }
 );
@@ -54,8 +54,8 @@ export const login = createAsyncThunk(
       console.log(response.data);
       return response.data;
     } catch (err: any) {
-      console.log(err.response?.data);
-      return thunkAPI.rejectWithValue(err.response?.data || err.message);
+      console.log(err.response);
+      return thunkAPI.rejectWithValue(err.response || err.message);
     }
   }
 );
@@ -75,8 +75,8 @@ export const fetchUser = createAsyncThunk(
       console.log(response.data);
       return response.data;
     } catch (err: any) {
-      console.log(err.response?.data);
-      return thunkAPI.rejectWithValue(err.response?.data || err.message);
+      console.log(err.response);
+      return thunkAPI.rejectWithValue(err.response || err.message);
     }
   }
 );
@@ -97,8 +97,8 @@ export const signout = createAsyncThunk(
       console.log(response.data);
       return response.data;
     } catch (err: any) {
-      console.log(err.response?.data);
-      return thunkAPI.rejectWithValue(err.response?.data || err.message);
+      console.log(err.response);
+      return thunkAPI.rejectWithValue(err.response || err.message);
     }
   }
 );

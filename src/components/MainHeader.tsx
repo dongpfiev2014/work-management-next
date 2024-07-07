@@ -56,6 +56,11 @@ const MainHeader = () => {
           <li>
             <Link href="/function">Function</Link>
           </li>
+          <li>
+            <Link href="/conmemay">
+              Hello {userState.currentUser?.fullName}
+            </Link>
+          </li>
         </ul>
       </nav>
       <Button onClick={handleSignOut}>Sign Out</Button>

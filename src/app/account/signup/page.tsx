@@ -23,6 +23,7 @@ import {
 } from "@ant-design/icons";
 import { useAppDispatch } from "@/lib/hooks";
 import { register } from "@/reducer/authReducer";
+import { PasswordPatternRules } from "@/lib/constants";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -146,12 +147,8 @@ const SignUpForm = () => {
             </Form.Item>
             <Form.Item
               name="password"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your Password!",
-                },
-              ]}
+              rules={PasswordPatternRules}
+              validateFirst
             >
               <Input.Password
                 prefix={<LockOutlined />}
