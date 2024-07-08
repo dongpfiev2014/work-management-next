@@ -18,6 +18,7 @@ import Link from "next/link";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { login } from "@/reducer/authReducer";
+import axios from "axios";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -29,6 +30,7 @@ const LoginForm = () => {
   const [showError, setShowError] = useState(false);
   const dispatch = useAppDispatch();
   const [messageApi, contextHolder] = message.useMessage();
+  const [geoLocationDetails, setGeoLocationDetails] = useState([]);
 
   useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
@@ -36,6 +38,15 @@ const LoginForm = () => {
     } else {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchGeoLocation = async () => {
+      const response = await axios.get("https://geolocation-db.com/json/");
+      console.log(response.data);
+      setGeoLocationDetails(response.data);
+    };
+    fetchGeoLocation();
   }, []);
 
   if (loading)
@@ -47,14 +58,16 @@ const LoginForm = () => {
 
   const onFinish = () => {
     setShowError(false);
-    dispatch(login({ email, password })).then((action: any) => {
-      const response = action.payload;
-      if (response.success) {
-        success();
-        localStorage.setItem("accessToken", response.accessToken);
-        setShowError(false);
-      } else setShowError(true);
-    });
+    dispatch(login({ email, password, geoLocationDetails })).then(
+      (action: any) => {
+        const response = action.payload;
+        if (response.success) {
+          success();
+          localStorage.setItem("accessToken", response.accessToken);
+          setShowError(false);
+        } else setShowError(true);
+      }
+    );
   };
 
   const success = () => {

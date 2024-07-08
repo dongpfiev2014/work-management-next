@@ -6,6 +6,7 @@ const axiosClient = axios.create({
     "Content-Type": "application/json",
   },
   timeout: 10000,
+  withCredentials: true,
 });
 
 axiosClient.interceptors.request.use(
@@ -30,7 +31,6 @@ axiosClient.interceptors.response.use(
     console.log(error);
     console.log(originalRequest);
     if (error.response.status === 401 && !originalRequest._retry) {
-      console.log("hahaha");
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem("refreshToken");

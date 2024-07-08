@@ -9,6 +9,7 @@ import Script from "next/script";
 import { ConfigProvider } from "antd";
 import MainLayout from "@/components/MainLayout";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { cookies } from "next/headers";
 
 const font = Source_Sans_3({
   subsets: ["latin"],
