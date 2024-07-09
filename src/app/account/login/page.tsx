@@ -19,6 +19,7 @@ import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { login } from "@/reducer/authReducer";
 import axios from "axios";
+import { userInfo } from "@/selector/userSelector";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -31,6 +32,8 @@ const LoginForm = () => {
   const dispatch = useAppDispatch();
   const [messageApi, contextHolder] = message.useMessage();
   const [geoLocationDetails, setGeoLocationDetails] = useState([]);
+  const userState = useAppSelector(userInfo);
+  console.log(userState);
 
   useEffect(() => {
     const fetchGeoLocation = async () => {

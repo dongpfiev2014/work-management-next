@@ -137,8 +137,6 @@ const authSlice = createSlice({
       })
       .addCase(signout.rejected, (state, action) => {
         state.isLoading = false;
-        state.currentUser = action.payload.data;
-        state.message = action.payload.message;
         state.error = action.payload as string;
         state.success = false;
       });
