@@ -1,3 +1,4 @@
+import { fetchGeoLocation } from "@/utils/geoLocation";
 import axios from "axios";
 
 const axiosClient = axios.create({
@@ -22,33 +23,48 @@ axiosClient.interceptors.request.use(
   }
 );
 
+var checkVar = 0;
+
 axiosClient.interceptors.response.use(
-  (response) => {
+  async (response) => {
     return response;
   },
   async (error) => {
     const originalRequest = error.config;
     console.log(error);
-    console.log(originalRequest);
-    if (error.response.status === 401 && !originalRequest._retry) {
+    checkVar += 1;
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (refreshToken) {
-          const { data } = await axiosClient.post("/auth/refresh", {
-            refreshToken,
-          });
-          localStorage.setItem("accessToken", data.accessToken);
-          localStorage.setItem("refreshToken", data.refreshToken);
-          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
-          return axiosClient(originalRequest);
+      if (checkVar <= 2) {
+        try {
+          const geoLocationDetails = await fetchGeoLocation();
+          const data = JSON.stringify(geoLocationDetails);
+          const response = await axiosClient.post("/auth/refreshToken", data);
+          if (response.status === 200 && response.data) {
+            localStorage.setItem("accessToken", response.data.accessToken);
+            originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+            return axiosClient(originalRequest);
+          }
+        } catch (error) {
+          console.log("Error refreshing token:", error);
+          localStorage.removeItem("accessToken");
+          window.location.href = "/account/login";
+          return Promise.reject(error);
         }
-      } catch (error) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        window.location.href = "/login";
-        return Promise.reject(error);
       }
+    }
+    if (
+      error.response &&
+      error.response.status === 403 &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+      localStorage.removeItem("accessToken");
+      window.location.href = "/account/login";
     }
     return Promise.reject(error);
   }

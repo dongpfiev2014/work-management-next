@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { userInfo } from "@/selector/userSelector";
 import { fetchUser } from "@/reducer/authReducer";

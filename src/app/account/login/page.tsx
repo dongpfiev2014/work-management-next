@@ -33,20 +33,21 @@ const LoginForm = () => {
   const [geoLocationDetails, setGeoLocationDetails] = useState([]);
 
   useEffect(() => {
+    const fetchGeoLocation = async () => {
+      const response = await axios.get("https://geolocation-db.com/json/");
+      if (response) {
+        setGeoLocationDetails(response.data);
+      }
+    };
+    fetchGeoLocation();
+  }, []);
+
+  useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
       router.push("/");
     } else {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    const fetchGeoLocation = async () => {
-      const response = await axios.get("https://geolocation-db.com/json/");
-      console.log(response.data);
-      setGeoLocationDetails(response.data);
-    };
-    fetchGeoLocation();
   }, []);
 
   if (loading)
