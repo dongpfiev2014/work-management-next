@@ -33,14 +33,14 @@ const MainHeader: React.FC = () => {
   }, [auth]);
 
   const handleSignOut = async () => {
+    if (accessToken) {
+      dispatch(signout());
+    }
     try {
       const response = await signOut(auth);
       // router.push("/account/login");
     } catch (error: any) {
       console.error("Error signing out", error.message);
-    }
-    if (accessToken) {
-      dispatch(signout());
     }
   };
 
