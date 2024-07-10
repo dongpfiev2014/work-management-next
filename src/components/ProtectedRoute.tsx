@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { userInfo } from "@/selector/userSelector";
 import { fetchUser } from "@/reducer/authReducer";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { message } from "antd";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -16,34 +17,29 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const [messageApi, contextHolder] = message.useMessage();
+  const pathname = usePathname();
+  const isLoginPage =
+    pathname === "/account/login" || pathname === "/account/signup";
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      try {
-        if (
-          accessToken &&
-          accessToken !== "undefined" &&
-          accessToken !== null
-        ) {
-          // Gọi action fetchUser với accessToken
-          await dispatch(fetchUser()).then((action) => {
-            const response = action.payload;
-            if (!response.success) {
-              localStorage.removeItem("accessToken");
-              router.push("/account/login");
-            }
-          });
-        } else {
-          router.push("/account/login");
+      if (accessToken && accessToken !== "undefined" && accessToken !== null) {
+        // Gọi action fetchUser với accessToken
+        const action = await dispatch(fetchUser());
+        const response = action.payload;
+        if (!response.success) {
+          localStorage.removeItem("accessToken");
+          await messageLogOut();
         }
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-        localStorage.removeItem("accessToken");
-        router.push("/account/login");
+      } else {
+        if (!isLoginPage) {
+          await messageLogOut();
+        }
       }
     };
     fetchUserInfo();
-  }, []);
+  }, [accessToken]);
 
   useEffect(() => {
     if (userState.currentUser) {
@@ -54,7 +50,34 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   }, []);
 
-  return <>{children}</>;
+  const messageLogOut = () => {
+    return new Promise<void>((resolve) => {
+      messageApi
+        .open({
+          type: "success",
+          content: "Sign out successful!",
+          duration: 0.5,
+        })
+        .then(() =>
+          messageApi.open({
+            type: "loading",
+            content: "Redirecting to login page...",
+            duration: 1,
+            onClose: () => {
+              router.push("/account/login");
+              resolve();
+            },
+          })
+        );
+    });
+  };
+
+  return (
+    <>
+      {contextHolder}
+      {children}
+    </>
+  );
 };
 
 export default ProtectedRoute;

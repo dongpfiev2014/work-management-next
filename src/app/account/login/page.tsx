@@ -20,6 +20,14 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { login } from "@/reducer/authReducer";
 import axios from "axios";
 import { userInfo } from "@/selector/userSelector";
+import { app } from "@/config/config";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithCredential,
+  signInWithPopup,
+  User,
+} from "firebase/auth";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -33,17 +41,68 @@ const LoginForm = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [geoLocationDetails, setGeoLocationDetails] = useState([]);
   const userState = useAppSelector(userInfo);
+  const [googleUser, setGoogleUser] = useState<User | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   console.log(userState);
 
   useEffect(() => {
+    const auth = getAuth(app);
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log(user);
+        setGoogleUser(user);
+      } else {
+        setGoogleUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const signInWithGoogle = async () => {
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log(result);
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var credential;
+      credential = GoogleAuthProvider.credentialFromResult(result);
+      console.log(credential);
+      const accessToken = credential?.accessToken;
+      // The signed-in user info.
+      const user = result.user;
+      // IdP data available using getAdditionalUserInfo(result)
+
+      // router.push("/");
+    } catch (error: any) {
+      console.error("Error signing in with Google: ", error);
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // The email of the user's account used.
+      const email = error.customData.email;
+      // The AuthCredential type that was used.
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      console.log(credential);
+      // ...
+    }
+  };
+
+  useEffect(() => {
     const fetchGeoLocation = async () => {
-      const response = await axios.get("https://geolocation-db.com/json/");
-      if (response) {
-        setGeoLocationDetails(response.data);
+      try {
+        const response = await axios.get("https://geolocation-db.com/json/");
+        if (response) {
+          setGeoLocationDetails(response.data);
+        }
+      } catch (error) {
+        console.log(
+          "'Failed to fetch geolocation data. Please try again later.')"
+        );
       }
     };
     fetchGeoLocation();
-  }, []);
+  }, [userState.currentUser]);
 
   useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
@@ -61,6 +120,8 @@ const LoginForm = () => {
     );
 
   const onFinish = () => {
+    if (submitting) return;
+    setSubmitting(true);
     setShowError(false);
     dispatch(login({ email, password, geoLocationDetails })).then(
       (action: any) => {
@@ -69,7 +130,10 @@ const LoginForm = () => {
           success();
           localStorage.setItem("accessToken", response.accessToken);
           setShowError(false);
-        } else setShowError(true);
+        } else {
+          setShowError(true);
+          setSubmitting(false);
+        }
       }
     );
   };
@@ -124,7 +188,12 @@ const LoginForm = () => {
                   <Typography.Text strong>{"Password123@"}</Typography.Text>
                 </div>
               </div>
-              <Button icon={<GoogleOutlined />} block type="link">
+              <Button
+                icon={<GoogleOutlined />}
+                block
+                type="link"
+                onClick={signInWithGoogle}
+              >
                 {"Continue with Google"}
               </Button>
               <Divider plain>OR</Divider>
@@ -179,6 +248,7 @@ const LoginForm = () => {
                 className="w-100"
                 size="middle"
                 style={{ backgroundColor: "black" }}
+                disabled={submitting}
               >
                 Log in
               </Button>

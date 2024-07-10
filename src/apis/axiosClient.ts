@@ -52,9 +52,6 @@ axiosClient.interceptors.response.use(
         } catch (error) {
           console.log("Error refreshing token:", error);
           localStorage.removeItem("accessToken");
-          console.log("Bị log out ở đoạn này");
-          window.location.href = "/account/login";
-          // router.push("/auth/login");
           return Promise.reject(error);
         }
       }
@@ -64,11 +61,9 @@ axiosClient.interceptors.response.use(
       error.response.status === 403 &&
       !originalRequest._retry
     ) {
+      console.log("Login session expired:", error);
       originalRequest._retry = true;
       localStorage.removeItem("accessToken");
-      console.log("Bị log out ở đoạn này");
-      window.location.href = "/account/login";
-      // router.push("/auth/login");
     }
     return Promise.reject(error);
   }

@@ -132,13 +132,15 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.currentUser = action.payload.data;
         state.message = action.payload.message;
-        state.success = false;
+        state.success = true;
         state.error = null;
       })
       .addCase(signout.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        state.success = false;
+        state.success = true;
+        state.currentUser = undefined;
+        state.message = "";
       });
   },
 });

@@ -3,51 +3,49 @@
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { signout } from "@/reducer/authReducer";
 import { userInfo } from "@/selector/userSelector";
-import { Button, message } from "antd";
+import { Button } from "antd";
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { app } from "@/config/config";
+import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import React from "react";
 
 const MainHeader: React.FC = () => {
-  const router = useRouter();
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const userState = useAppSelector(userInfo);
   console.log(userState);
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-  const [messageApi, contextHolder] = message.useMessage();
+  const [googleUser, setGoogleUser] = useState<User | null>(null);
+  const auth = getAuth(app);
 
-  const handleSignOut = () => {
-    if (accessToken) {
-      dispatch(signout()).then((action) => {
-        const response = action.payload;
-        if (response.success) {
-          messageLogOut();
-        }
-      });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log(user);
+        setGoogleUser(user);
+      } else {
+        // router.push("/account/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [auth]);
+
+  const handleSignOut = async () => {
+    try {
+      const response = await signOut(auth);
+      // router.push("/account/login");
+    } catch (error: any) {
+      console.error("Error signing out", error.message);
     }
-  };
-
-  const messageLogOut = () => {
-    messageApi
-      .open({
-        type: "success",
-        content: "Sign out successful!",
-        duration: 0.5,
-      })
-      .then(() =>
-        messageApi.open({
-          type: "loading",
-          content: "Redirecting to login page...",
-          duration: 1,
-          onClose: () => router.push("/account/login"),
-        })
-      );
+    if (accessToken) {
+      dispatch(signout());
+    }
   };
 
   return (
     <header className="d-flex ">
-      {contextHolder}
       <nav>
         <ul>
           <li>
