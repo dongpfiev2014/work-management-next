@@ -26,12 +26,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const fetchUserInfo = async () => {
       if (accessToken && accessToken !== "undefined" && accessToken !== null) {
         // Gọi action fetchUser với accessToken
-        const action = await dispatch(fetchUser());
-        const response = action.payload;
-        if (!response.success) {
-          localStorage.removeItem("accessToken");
-          await messageLogOut();
-        }
+        await dispatch(fetchUser());
       } else {
         if (!isLoginPage) {
           await messageLogOut();

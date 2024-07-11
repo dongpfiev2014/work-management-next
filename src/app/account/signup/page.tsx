@@ -36,6 +36,7 @@ const SignUpForm = () => {
   const [showError, setShowError] = useState(false);
   const dispatch = useAppDispatch();
   const [messageApi, contextHolder] = message.useMessage();
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
@@ -53,15 +54,19 @@ const SignUpForm = () => {
     );
 
   const onFinish = () => {
+    if (submitting) return;
+    setSubmitting(true);
     setShowError(false);
     dispatch(register({ fullName, email, password })).then((action: any) => {
       const response = action.payload;
+      console.log(response);
       if (response.success) {
         success();
         localStorage.setItem("accessToken", response.accessToken);
         setShowError(false);
       } else {
         setShowError(true);
+        setSubmitting(false);
       }
     });
   };
@@ -168,6 +173,7 @@ const SignUpForm = () => {
                 className="w-100"
                 size="middle"
                 style={{ backgroundColor: "black" }}
+                disabled={submitting}
               >
                 Sign Up
               </Button>
