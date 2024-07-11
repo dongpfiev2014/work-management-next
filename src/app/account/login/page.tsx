@@ -17,7 +17,7 @@ import styles from "./page.module.css";
 import Link from "next/link";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { login } from "@/reducer/authReducer";
+import { login, logInWithGoogle } from "@/reducer/authReducer";
 import axios from "axios";
 import { userInfo } from "@/selector/userSelector";
 import { app } from "@/config/config";
@@ -60,12 +60,24 @@ const LoginForm = () => {
   }, [auth, router]);
 
   const signInWithGoogle = async () => {
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
     try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
       const result = await signInWithPopup(auth, provider);
       console.log(result);
-      // userState.currentUser.emailVerified && router.push("/");
+      const geoLocationDetails = await fetchGeoLocation();
+      dispatch(
+        logInWithGoogle({ userInfo: result.user, geoLocationDetails })
+      ).then((action: any) => {
+        const response = action.payload;
+        if (response.success) {
+          success();
+          localStorage.setItem("accessToken", response.accessToken);
+        } else {
+          setShowError(true);
+          setSubmitting(false);
+        }
+      });
     } catch (error: any) {
       console.error("Error signing in with Google: ", error);
     }

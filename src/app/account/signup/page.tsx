@@ -22,7 +22,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useAppDispatch } from "@/lib/hooks";
-import { register } from "@/reducer/authReducer";
+import { logInWithGoogle, register } from "@/reducer/authReducer";
 import { PasswordPatternRules } from "@/lib/constants";
 import {
   createUserWithEmailAndPassword,
@@ -70,6 +70,7 @@ const SignUpForm = () => {
     } else {
       setLoading(false);
     }
+    signOut(auth);
   }, []);
 
   useEffect(() => {
@@ -139,7 +140,24 @@ const SignUpForm = () => {
       provider.setCustomParameters({ prompt: "select_account" });
       const result = await signInWithPopup(auth, provider);
       console.log(result);
-      // userState.currentUser.emailVerified && success()
+      const geoLocationDetails = await fetchGeoLocation();
+      dispatch(
+        logInWithGoogle({ userInfo: result.user, geoLocationDetails })
+      ).then((action: any) => {
+        const response = action.payload;
+        if (response.success) {
+          success();
+          localStorage.setItem("accessToken", response.accessToken);
+        } else {
+          setMessageSignUp((prevState) => ({
+            title: "Error",
+            message: "Failed to log in with Google. Please try again",
+            type: "error",
+            showError: true,
+          }));
+          setSubmitting(false);
+        }
+      });
     } catch (error: any) {
       console.error("Error signing in with Google: ", error);
     }
@@ -148,6 +166,7 @@ const SignUpForm = () => {
   const onFinish = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setIsSignInWithGoogle(false);
     setMessageSignUp((prevState) => ({
       ...prevState,
       showError: false,

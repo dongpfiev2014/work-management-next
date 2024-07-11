@@ -35,7 +35,7 @@ const MainHeader: React.FC = () => {
   const handleSignOut = async () => {
     signOut(auth)
       .then(() => {
-        console.log("sign out ok");
+        console.log("Sign out completed");
         // Sign-out successful.
       })
       .catch((error) => {

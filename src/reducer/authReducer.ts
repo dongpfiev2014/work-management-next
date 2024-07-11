@@ -67,6 +67,21 @@ export const signout = createAsyncThunk("auth/signout", async (_, thunkAPI) => {
   }
 });
 
+export const logInWithGoogle = createAsyncThunk(
+  "auth/logInWithGoogle",
+  async (userData: any, thunkAPI) => {
+    try {
+      const data = JSON.stringify(userData);
+      const response = await axiosClient.post("/auth/logInWithGoogle", data);
+      console.log(response.data);
+      return response.data;
+    } catch (err: any) {
+      console.log(err.response);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -141,6 +156,23 @@ const authSlice = createSlice({
         state.success = true;
         state.currentUser = undefined;
         state.message = "";
+      });
+    builder
+      .addCase(logInWithGoogle.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(logInWithGoogle.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentUser = action.payload.data;
+        state.message = action.payload.message;
+        state.success = true;
+      })
+      .addCase(logInWithGoogle.rejected, (state, action) => {
+        state.isLoading = false;
+        state.message = "Registration failed";
+        state.error = action.payload as string;
+        state.success = false;
       });
   },
 });

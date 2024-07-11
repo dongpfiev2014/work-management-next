@@ -31,7 +31,6 @@ axiosClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    console.log(error);
     checkVar += 1;
     if (
       error.response &&
