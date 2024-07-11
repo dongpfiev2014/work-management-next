@@ -30,9 +30,18 @@ import {
   GoogleAuthProvider,
   sendEmailVerification,
   signInWithPopup,
+  signOut,
   User,
 } from "firebase/auth";
 import { app } from "@/config/config";
+import { fetchGeoLocation } from "@/utils/geoLocation";
+
+interface MessageSignUp {
+  title: string;
+  message: string;
+  type: "success" | "info" | "warning" | "error";
+  showError: boolean;
+}
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -42,13 +51,17 @@ const SignUpForm = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
+  const [messageSignUp, setMessageSignUp] = useState<MessageSignUp>({
+    title: "",
+    message: "",
+    type: "error",
+    showError: false,
+  });
   const dispatch = useAppDispatch();
   const [messageApi, contextHolder] = message.useMessage();
   const [submitting, setSubmitting] = useState(false);
   const [googleUser, setGoogleUser] = useState<User | null>(null);
+  const [isSignInWithGoogle, setIsSignInWithGoogle] = useState(false);
   const auth = getAuth(app);
 
   useEffect(() => {
@@ -62,14 +75,55 @@ const SignUpForm = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        console.log(user);
         setGoogleUser(user);
+        console.log(user);
       } else {
         setGoogleUser(null);
       }
     });
     return () => unsubscribe();
   }, [auth, router]);
+
+  useEffect(() => {
+    if (googleUser) {
+      const interval = setInterval(async () => {
+        await googleUser.reload();
+        const user = getAuth().currentUser;
+        if (user && user.emailVerified && !isSignInWithGoogle) {
+          clearInterval(interval);
+          const geoLocationDetails = await fetchGeoLocation();
+          dispatch(
+            register({
+              fullName,
+              email,
+              password,
+              emailVerified: user.emailVerified,
+              geoLocationDetails,
+            })
+          ).then((action: any) => {
+            const response = action.payload;
+            if (response.success) {
+              success();
+              localStorage.setItem("accessToken", response.accessToken);
+              setMessageSignUp((prevState) => ({
+                ...prevState,
+                showError: false,
+              }));
+            } else {
+              setMessageSignUp((prevState) => ({
+                title: "Error",
+                message: "Email has already been used. Please try again",
+                type: "error",
+                showError: true,
+              }));
+              setSubmitting(false);
+            }
+          });
+        }
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [googleUser]);
 
   if (loading)
     return (
@@ -79,12 +133,13 @@ const SignUpForm = () => {
     );
 
   const signInWithGoogle = async () => {
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+    setIsSignInWithGoogle(true);
     try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
       const result = await signInWithPopup(auth, provider);
       console.log(result);
-      // userState.currentUser.emailVerified && router.push("/");
+      // userState.currentUser.emailVerified && success()
     } catch (error: any) {
       console.error("Error signing in with Google: ", error);
     }
@@ -93,37 +148,33 @@ const SignUpForm = () => {
   const onFinish = async () => {
     if (submitting) return;
     setSubmitting(true);
-    setShowError(false);
+    setMessageSignUp((prevState) => ({
+      ...prevState,
+      showError: false,
+    }));
     await createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCred) => {
         const user = userCred.user;
-        console.log(user);
         await sendEmailVerification(user);
-        setShowError(true);
-        setErrorMessage(
-          "A verification email has been sent to your email address. Please verify your account and then log in."
-        );
-        // router.push("/");
+        setMessageSignUp({
+          title: "Email Verification",
+          message:
+            "A verification email has been sent to your email address. Please verify your account and then log in.",
+          type: "info",
+          showError: true,
+        });
       })
       .catch((error) => {
         console.log("Error creating user: ", error);
+        setMessageSignUp({
+          title: "Error",
+          message:
+            error.message || "Email has already been used. Please try again",
+          type: "error",
+          showError: true,
+        });
         setSubmitting(false);
-        setShowError(true);
-        setErrorMessage("Email has already been used. Please try again");
       });
-
-    // dispatch(register({ fullName, email, password })).then((action: any) => {
-    //   const response = action.payload;
-    //   console.log(response);
-    //   if (response.success) {
-    //     success();
-    //     localStorage.setItem("accessToken", response.accessToken);
-    //     setShowError(false);
-    //   } else {
-    //     setShowError(true);
-    //     setSubmitting(false);
-    //   }
-    // });
   };
 
   const success = () => {
@@ -261,14 +312,19 @@ const SignUpForm = () => {
             </Form.Item>
           </Form>
           <div className={styles.showError}>
-            {showError && (
+            {messageSignUp.showError && (
               <Alert
-                message="Error hahaha"
-                description={errorMessage}
-                type="error"
+                message={messageSignUp.title}
+                description={messageSignUp.message}
+                type={messageSignUp.type}
                 showIcon
                 closable
-                onClose={() => setShowError(false)}
+                onClose={() =>
+                  setMessageSignUp((prevState) => ({
+                    ...prevState,
+                    showError: false,
+                  }))
+                }
               />
             )}
           </div>

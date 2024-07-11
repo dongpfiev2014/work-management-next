@@ -28,6 +28,7 @@ import {
   signInWithPopup,
   User,
 } from "firebase/auth";
+import { fetchGeoLocation } from "@/utils/geoLocation";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -71,22 +72,6 @@ const LoginForm = () => {
   };
 
   useEffect(() => {
-    const fetchGeoLocation = async () => {
-      try {
-        const response = await axios.get("https://geolocation-db.com/json/");
-        if (response) {
-          setGeoLocationDetails(response.data);
-        }
-      } catch (error) {
-        console.log(
-          "'Failed to fetch geolocation data. Please try again later.')"
-        );
-      }
-    };
-    fetchGeoLocation();
-  }, [userState.currentUser]);
-
-  useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
       router.push("/");
     } else {
@@ -101,14 +86,16 @@ const LoginForm = () => {
       </>
     );
 
-  const onFinish = () => {
+  const onFinish = async () => {
     if (submitting) return;
     setSubmitting(true);
     setShowError(false);
+    const geoLocationDetails = await fetchGeoLocation();
     dispatch(login({ email, password, geoLocationDetails })).then(
       (action: any) => {
         const response = action.payload;
-        if (response.success && userState.currentUser.emailVerified) {
+        console.log(response);
+        if (response.success && response.data.emailVerified) {
           success();
           localStorage.setItem("accessToken", response.accessToken);
           setShowError(false);
@@ -261,7 +248,7 @@ const LoginForm = () => {
             {showError && (
               <Alert
                 message="Error"
-                description="Invalid email or password."
+                description="Invalid email or password or email not verified."
                 type="error"
                 showIcon
                 closable
