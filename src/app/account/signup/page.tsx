@@ -24,6 +24,15 @@ import {
 import { useAppDispatch } from "@/lib/hooks";
 import { register } from "@/reducer/authReducer";
 import { PasswordPatternRules } from "@/lib/constants";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  GoogleAuthProvider,
+  sendEmailVerification,
+  signInWithPopup,
+  User,
+} from "firebase/auth";
+import { app } from "@/config/config";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -34,9 +43,13 @@ const SignUpForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
   const dispatch = useAppDispatch();
   const [messageApi, contextHolder] = message.useMessage();
   const [submitting, setSubmitting] = useState(false);
+  const [googleUser, setGoogleUser] = useState<User | null>(null);
+  const auth = getAuth(app);
 
   useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
@@ -46,6 +59,18 @@ const SignUpForm = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log(user);
+        setGoogleUser(user);
+      } else {
+        setGoogleUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, [auth, router]);
+
   if (loading)
     return (
       <>
@@ -53,22 +78,52 @@ const SignUpForm = () => {
       </>
     );
 
-  const onFinish = () => {
+  const signInWithGoogle = async () => {
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log(result);
+      // userState.currentUser.emailVerified && router.push("/");
+    } catch (error: any) {
+      console.error("Error signing in with Google: ", error);
+    }
+  };
+
+  const onFinish = async () => {
     if (submitting) return;
     setSubmitting(true);
     setShowError(false);
-    dispatch(register({ fullName, email, password })).then((action: any) => {
-      const response = action.payload;
-      console.log(response);
-      if (response.success) {
-        success();
-        localStorage.setItem("accessToken", response.accessToken);
-        setShowError(false);
-      } else {
+    await createUserWithEmailAndPassword(auth, email, password)
+      .then(async (userCred) => {
+        const user = userCred.user;
+        console.log(user);
+        await sendEmailVerification(user);
         setShowError(true);
+        setErrorMessage(
+          "A verification email has been sent to your email address. Please verify your account and then log in."
+        );
+        // router.push("/");
+      })
+      .catch((error) => {
+        console.log("Error creating user: ", error);
         setSubmitting(false);
-      }
-    });
+        setShowError(true);
+        setErrorMessage("Email has already been used. Please try again");
+      });
+
+    // dispatch(register({ fullName, email, password })).then((action: any) => {
+    //   const response = action.payload;
+    //   console.log(response);
+    //   if (response.success) {
+    //     success();
+    //     localStorage.setItem("accessToken", response.accessToken);
+    //     setShowError(false);
+    //   } else {
+    //     setShowError(true);
+    //     setSubmitting(false);
+    //   }
+    // });
   };
 
   const success = () => {
@@ -107,7 +162,12 @@ const SignUpForm = () => {
                   "Create an account to track your progress, showcase your skill-set and be a part of the community."
                 }
               </Typography.Text>
-              <Button icon={<GoogleOutlined />} block type="link">
+              <Button
+                icon={<GoogleOutlined />}
+                block
+                type="link"
+                onClick={signInWithGoogle}
+              >
                 {"Continue with Google"}
               </Button>
               <Divider plain>OR</Divider>
@@ -203,8 +263,8 @@ const SignUpForm = () => {
           <div className={styles.showError}>
             {showError && (
               <Alert
-                message="Error"
-                description="Your email has already been used!"
+                message="Error hahaha"
+                description={errorMessage}
                 type="error"
                 showIcon
                 closable

@@ -44,9 +44,9 @@ const LoginForm = () => {
   const [googleUser, setGoogleUser] = useState<User | null>(null);
   const [submitting, setSubmitting] = useState(false);
   console.log(userState);
+  const auth = getAuth(app);
 
   useEffect(() => {
-    const auth = getAuth(app);
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         console.log(user);
@@ -56,7 +56,7 @@ const LoginForm = () => {
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [auth, router]);
 
   const signInWithGoogle = async () => {
     const auth = getAuth(app);
@@ -64,27 +64,9 @@ const LoginForm = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       console.log(result);
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var credential;
-      credential = GoogleAuthProvider.credentialFromResult(result);
-      console.log(credential);
-      const accessToken = credential?.accessToken;
-      // The signed-in user info.
-      const user = result.user;
-      // IdP data available using getAdditionalUserInfo(result)
-
-      // router.push("/");
+      // userState.currentUser.emailVerified && router.push("/");
     } catch (error: any) {
       console.error("Error signing in with Google: ", error);
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.customData.email;
-      // The AuthCredential type that was used.
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      console.log(credential);
-      // ...
     }
   };
 
@@ -126,7 +108,7 @@ const LoginForm = () => {
     dispatch(login({ email, password, geoLocationDetails })).then(
       (action: any) => {
         const response = action.payload;
-        if (response.success) {
+        if (response.success && userState.currentUser.emailVerified) {
           success();
           localStorage.setItem("accessToken", response.accessToken);
           setShowError(false);
