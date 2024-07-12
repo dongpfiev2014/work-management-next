@@ -29,7 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         await dispatch(fetchUser());
       } else {
         if (!isLoginPage) {
-          await messageLogOut();
+          // await messageLogOut();
         }
       }
     };

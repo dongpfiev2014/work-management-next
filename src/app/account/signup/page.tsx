@@ -305,7 +305,7 @@ const SignUpForm = () => {
                 style={{ backgroundColor: "black" }}
                 disabled={submitting}
               >
-                Sign Up
+                Continue to Verify Email
               </Button>
             </Form.Item>
             <Form.Item>

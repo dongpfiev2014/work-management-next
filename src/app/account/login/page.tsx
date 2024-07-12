@@ -18,13 +18,11 @@ import Link from "next/link";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { login, logInWithGoogle } from "@/reducer/authReducer";
-import axios from "axios";
 import { userInfo } from "@/selector/userSelector";
 import { app } from "@/config/config";
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithCredential,
   signInWithPopup,
   User,
 } from "firebase/auth";
@@ -40,7 +38,6 @@ const LoginForm = () => {
   const [showError, setShowError] = useState(false);
   const dispatch = useAppDispatch();
   const [messageApi, contextHolder] = message.useMessage();
-  const [geoLocationDetails, setGeoLocationDetails] = useState([]);
   const userState = useAppSelector(userInfo);
   const [googleUser, setGoogleUser] = useState<User | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -220,7 +217,7 @@ const LoginForm = () => {
               />
             </Form.Item>
             <Form.Item>
-              <Link href={"/"}>Reset your password?</Link>
+              <Link href={"/forgot-password"}>Reset your password?</Link>
             </Form.Item>
             <Form.Item>
               <Button
@@ -231,7 +228,7 @@ const LoginForm = () => {
                 style={{ backgroundColor: "black" }}
                 disabled={submitting}
               >
-                Log in
+                Continue
               </Button>
             </Form.Item>
             <Form.Item>
