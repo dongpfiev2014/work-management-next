@@ -2,6 +2,8 @@
   background-color: white;
   display: flex;
   justify-content: center;
+  flex-direction: row;
+  flex: 1;
 }
 
 .wrapper {
@@ -11,16 +13,13 @@
   padding: 5px;
   display: flex;
   border-radius: 15px;
+  flex-direction: row;
+  flex: 1;
 }
 
 .sidebar {
   background-color: white;
   flex: 1 1 0;
-  overflow: auto;
-  height: 100vh;
-  position: fixed;
-  top: 81px;
-  bottom: 200px;
 }
 
 .main {
