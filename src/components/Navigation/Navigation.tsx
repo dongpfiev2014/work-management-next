@@ -1,6 +1,19 @@
-import { Menu } from "antd";
+import { Checkbox, Menu } from "antd";
 import type { MenuProps } from "antd";
-import { FcParallelTasks } from "react-icons/fc";
+import {
+  FcAssistant,
+  FcDepartment,
+  FcExpired,
+  FcHighPriority,
+  FcParallelTasks,
+  FcRatings,
+  FcSelfServiceKiosk,
+} from "react-icons/fc";
+import { CgTemplate } from "react-icons/cg";
+import { BsArchive } from "react-icons/bs";
+import { GrTrash } from "react-icons/gr";
+import { VscSettingsGear } from "react-icons/vsc";
+import { GiTimeBomb } from "react-icons/gi";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -10,10 +23,71 @@ const items: MenuItem[] = [
     label: "General",
     type: "group",
     children: [
-      { key: "AllTasks", label: "All Tasks", icon: <FcParallelTasks /> },
-      { key: "Members", label: "Members", icon: "" },
-      { key: "Departments", label: "Departments", icon: "" },
-      { key: "Report", label: "Report", icon: "" },
+      { key: "allTasks", label: "All Tasks", icon: <FcParallelTasks /> },
+      { key: "members", label: "Members", icon: <FcAssistant /> },
+      { key: "departments", label: "Departments", icon: <FcDepartment /> },
+      { key: "report", label: "Report", icon: <FcRatings /> },
+    ],
+  },
+  {
+    key: "teamBoards",
+    label: "Team Boards",
+    type: "group",
+    children: [
+      { key: "generalTeam", label: "General", icon: <FcParallelTasks /> },
+      { key: "uiux", label: "UI/UX Design", icon: <FcAssistant /> },
+      {
+        key: "webDevelopment",
+        label: "Web Development",
+        icon: <FcDepartment />,
+      },
+      {
+        key: "mobileDevelopment",
+        label: "Mobile Development",
+        icon: <FcRatings />,
+      },
+    ],
+  },
+  {
+    key: "appearance",
+    label: "Appearance",
+    type: "group",
+    children: [
+      { key: "template", label: "Template", icon: <CgTemplate /> },
+      { key: "archive", label: "Archive", icon: <BsArchive /> },
+      {
+        key: "trash",
+        label: "Trash",
+        icon: <GrTrash />,
+      },
+      {
+        key: "settings",
+        label: "Settings",
+        icon: <VscSettingsGear />,
+      },
+    ],
+  },
+  {
+    key: "colorLegend",
+    label: "Color Legend",
+    type: "group",
+    children: [
+      {
+        key: "important",
+        label: "Important",
+        icon: <FcHighPriority />,
+      },
+      { key: "urgent", label: "Urgent", icon: <FcExpired /> },
+      {
+        key: "importantAndUrgent",
+        label: "Important and Urgent",
+        icon: <GiTimeBomb />,
+      },
+      {
+        key: "neither",
+        label: "Neither",
+        icon: <FcSelfServiceKiosk />,
+      },
     ],
   },
 ];
@@ -23,14 +97,16 @@ const Navigation: React.FC = () => {
     console.log("click ", e);
   };
   return (
-    <Menu
-      onClick={onClick}
-      style={{ width: "100%" }}
-      defaultSelectedKeys={["1"]}
-      defaultOpenKeys={["sub1"]}
-      mode="inline"
-      items={items}
-    />
+    <>
+      <Menu
+        onClick={onClick}
+        style={{ width: "100%" }}
+        defaultSelectedKeys={["1"]}
+        defaultOpenKeys={["sub1"]}
+        mode="inline"
+        items={items}
+      />
+    </>
   );
 };
 

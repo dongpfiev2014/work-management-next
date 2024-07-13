@@ -6,6 +6,8 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import styles from "./layout.module.css";
 import Navigation from "../Navigation/Navigation";
+import { Affix, Layout } from "antd";
+const { Header, Content, Footer, Sider } = Layout;
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -13,40 +15,43 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const pathname = usePathname();
-  const isLoginPage =
-    pathname === "/account/login" || pathname === "/account/signup";
+  const isAuthPage =
+    ["/account/login", "/account/signup", "/forgot-password"].includes(
+      pathname
+    ) ||
+    (pathname.startsWith("/reset-password/") &&
+      pathname.split("/").length === 4);
 
   return (
     <>
-      {!isLoginPage &&
-        !(pathname === "/forgot-password") &&
-        !(
-          pathname.startsWith("/reset-password/") &&
-          pathname.split("/").length === 4
-        ) && <MainHeader />}
-      {!isLoginPage &&
-      !(pathname === "/forgot-password") &&
-      !(
-        pathname.startsWith("/reset-password/") &&
-        pathname.split("/").length === 4
-      ) ? (
-        <div className={styles.container}>
-          <div className={styles.wrapper}>
-            <aside className={styles.sidebar}>
-              <Navigation />
-            </aside>
-            <main className={styles.main}>{children}</main>
-          </div>
-        </div>
+      {!isAuthPage ? (
+        <Layout>
+          <Affix>
+            <MainHeader />
+          </Affix>
+          <Content>
+            <Layout className={styles.container}>
+              <div className={styles.wrapper}>
+                <Sider style={{ backgroundColor: "white" }}>
+                  <div className={styles.sidebar}>
+                    <Navigation />
+                  </div>
+                </Sider>
+                <Content>
+                  <main className={styles.main}>{children}</main>
+                </Content>
+              </div>
+            </Layout>
+          </Content>
+          <Footer>
+            <MainFooter />
+          </Footer>
+        </Layout>
       ) : (
-        <main className={styles.main}>{children}</main>
+        <Content>
+          <main>{children}</main>
+        </Content>
       )}
-      {!isLoginPage &&
-        !(pathname === "/forgot-password") &&
-        !(
-          pathname.startsWith("/reset-password/") &&
-          pathname.split("/").length === 4
-        ) && <MainFooter />}
     </>
   );
 };
