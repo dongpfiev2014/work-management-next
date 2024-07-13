@@ -1,4 +1,4 @@
-import { Checkbox, Menu } from "antd";
+import { Avatar, Card, Checkbox, Menu, Space } from "antd";
 import type { MenuProps } from "antd";
 import {
   FcAssistant,
@@ -14,6 +14,9 @@ import { BsArchive } from "react-icons/bs";
 import { GrTrash } from "react-icons/gr";
 import { VscSettingsGear } from "react-icons/vsc";
 import { GiTimeBomb } from "react-icons/gi";
+import { useAppSelector } from "@/lib/hooks";
+import { userInfo } from "@/selector/userSelector";
+import { GoPasskeyFill } from "react-icons/go";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -93,11 +96,34 @@ const items: MenuItem[] = [
 ];
 
 const Navigation: React.FC = () => {
+  const userState = useAppSelector(userInfo);
   const onClick: MenuProps["onClick"] = (e) => {
     console.log("click ", e);
   };
   return (
     <>
+      <Card>
+        <Card.Meta
+          avatar={
+            <Avatar
+              src={
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYtQnQqqG4Dy3gLgYr85AymXaj2tX09X8LMA&s"
+              }
+            />
+            // <Avatar src={userState.currentUser?.companies[0] || "Apple Inc."} />
+          }
+          title={"Apple Inc."}
+          // title={userState.currentUser?.companies[0] || "Apple Inc."}
+          description={
+            <>
+              <Space size="small">
+                <GoPasskeyFill />
+                Private
+              </Space>
+            </>
+          }
+        />
+      </Card>
       <Menu
         onClick={onClick}
         style={{ width: "100%" }}

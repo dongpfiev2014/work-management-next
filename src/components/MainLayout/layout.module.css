@@ -1,28 +1,35 @@
 .container {
-  background-color: white;
   display: flex;
   justify-content: center;
-  flex-direction: row;
-  flex: 1;
 }
 
 .wrapper {
-  background-color: white;
   width: 1400px;
   max-width: 1400px;
   padding: 5px;
   display: flex;
+  gap: 5px;
   border-radius: 15px;
-  flex-direction: row;
-  flex: 1;
 }
 
 .sidebar {
-  background-color: white;
+  background-color: white !important;
   flex: 1 1 0;
+  border-radius: 15px !important;
+  padding: 5px;
+  height: 100vh;
+  overflow: auto;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
 }
 
 .main {
+  background-color: white !important;
   flex: 6 1 0;
-  padding: 5px;
+  border-radius: 15px !important;
+  padding: 15px;
+  height: 100vh;
+  overflow: auto;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
 }

@@ -28,6 +28,6 @@ video {
   margin-bottom: 0px !important;
 } */
 
-.importantIcon {
-  font-size: 100px !important;
+.ant-layout-footer {
+  padding: 10px 10px !important;
 }

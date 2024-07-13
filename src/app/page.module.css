@@ -1,5 +1,5 @@
 .container {
   display: flex;
-  background-color: rgb(185, 218, 218);
+  background-color: white;
   flex-direction: column;
 }
