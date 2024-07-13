@@ -3,8 +3,6 @@
 import React, { useRef, useState } from "react";
 import { Button } from "antd";
 import { PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
-import { useAppSelector } from "@/lib/hooks";
-import { userInfo } from "@/selector/userSelector";
 
 const IntroComponent = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -33,7 +31,7 @@ const IntroComponent = () => {
         autoPlay
         loop
         muted
-        style={{ cursor: "pointer", borderRadius: "20px" }}
+        style={{ borderRadius: "20px" }}
       />
       <Button
         className="position-absolute bottom-0 start-0 mb-4"
@@ -42,13 +40,13 @@ const IntroComponent = () => {
             <PlayCircleOutlined
               style={{
                 color: "gray",
-                fontSize: "50px",
                 marginLeft: "30px",
+                fontSize: "50px",
               }}
             />
           ) : (
             <PauseCircleOutlined
-              style={{ color: "gray", fontSize: "50px", marginLeft: "30px" }}
+              style={{ color: "gray", marginLeft: "30px", fontSize: "50px" }}
             />
           )
         }

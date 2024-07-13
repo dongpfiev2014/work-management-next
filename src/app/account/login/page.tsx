@@ -27,6 +27,7 @@ import {
   User,
 } from "firebase/auth";
 import { fetchGeoLocation } from "@/utils/geoLocation";
+import { FcGoogle } from "react-icons/fc";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -167,7 +168,7 @@ const LoginForm = () => {
                 </div>
               </div>
               <Button
-                icon={<GoogleOutlined />}
+                icon={<FcGoogle size={20} />}
                 block
                 type="link"
                 onClick={signInWithGoogle}

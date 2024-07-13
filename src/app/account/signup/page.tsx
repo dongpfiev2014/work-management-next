@@ -35,6 +35,7 @@ import {
 } from "firebase/auth";
 import { app } from "@/config/config";
 import { fetchGeoLocation } from "@/utils/geoLocation";
+import { FcGoogle } from "react-icons/fc";
 
 interface MessageSignUp {
   title: string;
@@ -233,7 +234,7 @@ const SignUpForm = () => {
                 }
               </Typography.Text>
               <Button
-                icon={<GoogleOutlined />}
+                icon={<FcGoogle size={20} />}
                 block
                 type="link"
                 onClick={signInWithGoogle}

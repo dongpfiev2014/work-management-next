@@ -148,7 +148,7 @@ const MainHeader: React.FC = () => {
           </Col>
         </Row>
       </div>
-      <Divider style={{ marginTop: 0 }} />
+      <Divider style={{ marginTop: 0, marginBottom: 0 }} />
     </>
   );
 };

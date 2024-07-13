@@ -23,10 +23,11 @@
   background-color: white;
   height: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex: 1 1 0;
   cursor: pointer;
+  padding: 5px;
 }
 
 .tasktis {
@@ -46,4 +47,5 @@
   justify-content: space-between;
   align-items: center;
   flex: 6 1 0;
+  padding: 5px;
 }

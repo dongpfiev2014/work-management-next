@@ -7,11 +7,9 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import Script from "next/script";
 import { ConfigProvider } from "antd";
-import MainLayout from "@/components/MainLayout";
+import MainLayout from "@/components/MainLayout/MainLayout";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { cookies } from "next/headers";
-import styles from "@/app/layout.module.css";
-import { usePathname } from "next/navigation";
 
 const font = Source_Sans_3({
   subsets: ["latin"],
@@ -31,10 +29,6 @@ export default function RootLayout({
   const cookieStore = cookies();
   const refreshToken = cookieStore.get("refreshToken");
   console.log(refreshToken);
-
-  // const pathname = usePathname();
-  // const isLoginPage =
-  //   pathname === "/account/login" || pathname === "/account/signup";
 
   return (
     <html lang="en">
@@ -65,12 +59,7 @@ export default function RootLayout({
               >
                 <ProtectedRoute>
                   <MainLayout>
-                    <div className={styles.container}>
-                      <div className={styles.wrapper}>
-                        <aside className={styles.sidebar}>4234</aside>
-                        <main className={styles.main}>{children}</main>
-                      </div>
-                    </div>
+                    <main>{children}</main>
                   </MainLayout>
                 </ProtectedRoute>
               </ConfigProvider>
