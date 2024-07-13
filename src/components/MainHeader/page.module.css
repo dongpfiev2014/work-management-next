@@ -1,0 +1,49 @@
+.wrapper {
+  background-color: white;
+  display: flex;
+  justify-content: center;
+}
+
+.main {
+  background-color: white;
+  width: 1400px;
+  max-width: 1400px;
+  padding: 5px;
+  display: flex;
+}
+
+.app,
+.nav {
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.app {
+  background-color: white;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1 1 0;
+  cursor: pointer;
+}
+
+.tasktis {
+  color: black;
+  font-weight: 650;
+}
+
+.inc {
+  color: #d25050;
+  font-weight: 650;
+}
+
+.nav {
+  background-color: white;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 6 1 0;
+}

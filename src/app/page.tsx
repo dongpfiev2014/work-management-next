@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className={styles.main}>
+    <main className={styles.container}>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <Link href="/about">About us</Link>
         <Link href="/hahaha">fafsdf</Link>

@@ -28,8 +28,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         // Gọi action fetchUser với accessToken
         await dispatch(fetchUser());
       } else {
-        if (!isLoginPage) {
-          // await messageLogOut();
+        if (
+          !isLoginPage &&
+          !(pathname === "/forgot-password") &&
+          !(
+            pathname.startsWith("/reset-password/") &&
+            pathname.split("/").length === 4
+          ) &&
+          userState.message
+        ) {
+          messageLogOut();
+        } else {
+          router.push("/account/login");
         }
       }
     };

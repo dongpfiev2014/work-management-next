@@ -1,12 +1,6 @@
-.wrapper {
-  background-color: lightsteelblue;
-  height: 100%;
-  width: 100%;
-}
-
 .main {
   background-color: white;
-  height: 100%;
+  height: 100vh;
   width: 100%;
   max-height: 100vh;
   border-radius: 20px;

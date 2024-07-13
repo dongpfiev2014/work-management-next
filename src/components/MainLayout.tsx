@@ -1,6 +1,6 @@
 "use client";
 
-import MainHeader from "@/components/MainHeader";
+import MainHeader from "@/components/MainHeader/MainHeader";
 import MainFooter from "@/components/MainFooter";
 import React from "react";
 import { usePathname } from "next/navigation";
@@ -16,9 +16,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <>
-      {!isLoginPage && <MainHeader />}
+      {!isLoginPage &&
+        !(pathname === "/forgot-password") &&
+        !(
+          pathname.startsWith("/reset-password/") &&
+          pathname.split("/").length === 4
+        ) && <MainHeader />}
       <main>{children}</main>
-      {!isLoginPage && <MainFooter />}
+      {!isLoginPage &&
+        !(pathname === "/forgot-password") &&
+        !(
+          pathname.startsWith("/reset-password/") &&
+          pathname.split("/").length === 4
+        ) && <MainFooter />}
     </>
   );
 };
