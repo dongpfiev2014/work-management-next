@@ -3,3 +3,7 @@
   background-color: white;
   flex-direction: column;
 }
+
+.Card {
+  cursor: pointer;
+}

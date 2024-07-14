@@ -1,4 +1,4 @@
-import { Avatar, Card, Checkbox, Menu, Space } from "antd";
+import { Avatar, Card, Checkbox, Menu, Space, Tag } from "antd";
 import type { MenuProps } from "antd";
 import {
   FcAssistant,
@@ -77,18 +77,22 @@ const items: MenuItem[] = [
     children: [
       {
         key: "important",
-        label: "Important",
+        label: <Tag color="orange">Important</Tag>,
         icon: <FcHighPriority />,
       },
-      { key: "urgent", label: "Urgent", icon: <FcExpired /> },
       {
-        key: "importantAndUrgent",
-        label: "Important and Urgent",
+        key: "urgent",
+        label: <Tag color="magenta">Urgent</Tag>,
+        icon: <FcExpired />,
+      },
+      {
+        key: "Critical",
+        label: <Tag color="purple">Critical</Tag>,
         icon: <GiTimeBomb />,
       },
       {
         key: "neither",
-        label: "Neither",
+        label: <Tag color="cyan">Neither</Tag>,
         icon: <FcSelfServiceKiosk />,
       },
     ],
