@@ -125,8 +125,11 @@ const MainHeader: React.FC = () => {
                       size="small"
                       style={{ backgroundColor: "white" }}
                     >
-                      <Button type="link" onClick={() => {}}>
-                        My account
+                      <Button
+                        type="link"
+                        onClick={() => router.push("/profile")}
+                      >
+                        My profile
                       </Button>
                       <Button type="link" onClick={handleSignOut}>
                         Sign out

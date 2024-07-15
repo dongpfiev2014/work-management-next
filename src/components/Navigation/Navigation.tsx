@@ -131,8 +131,7 @@ const Navigation: React.FC = () => {
       <Menu
         onClick={onClick}
         style={{ width: "100%" }}
-        defaultSelectedKeys={["1"]}
-        defaultOpenKeys={["sub1"]}
+        defaultSelectedKeys={["allTasks"]}
         mode="inline"
         items={items}
       />
