@@ -46,15 +46,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     fetchUserInfo();
   }, [accessToken]);
 
-  useEffect(() => {
-    if (userState.currentUser) {
-      if (!userState.success) {
-        localStorage.removeItem("accessToken");
-        router.push("/account/login");
-      }
-    }
-  }, []);
-
   const messageLogOut = () => {
     return new Promise<void>((resolve) => {
       messageApi

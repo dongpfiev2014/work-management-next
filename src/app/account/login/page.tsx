@@ -128,7 +128,7 @@ const LoginForm = () => {
         messageApi.open({
           type: "loading",
           content: "Redirecting now...",
-          duration: 1.5,
+          duration: 1,
           onClose: () => router.push("/"),
         })
       );

@@ -10,61 +10,57 @@ import {
   Form,
   Image,
   Input,
+  InputNumber,
   Layout,
+  notification,
   Radio,
   Row,
   Typography,
   Upload,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import moment from "moment";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { profileInfo, userInfo } from "@/selector/userSelector";
+import { userInfo } from "@/selector/userSelector";
 import Link from "next/link";
 import { User } from "@/types";
-import { updateProfile } from "@/reducer/profileReducer";
+import { updateProfile } from "@/reducer/authReducer";
+import dayjs from "dayjs";
 
 const page: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const userState = useAppSelector(userInfo);
-  const profileState = useAppSelector(profileInfo);
   const dispatch = useAppDispatch();
   const [editingEmail, setEditingEmail] = useState(false);
-  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState(
+    userState.currentUser?.dateOfBirth
+  );
   const [avatarFile, setAvatarFile] = useState<File | undefined>(undefined);
+  const [api, contextHolder] = notification.useNotification();
 
   useEffect(() => {
     setIsClient(true);
-    fetchProfile(); // Fetch user profile data
   }, []);
 
-  const fetchProfile = () => {
-    // Fetch user profile data
-  };
-
   const onFinish = (value: User) => {
-    console.log(value);
     const updatedProfile = {
-      ...userState.currentUser,
       ...value,
       dateOfBirth: dateOfBirth,
     };
-    console.log(updatedProfile);
+    openNotification(false);
     dispatch(
       updateProfile({
         id: userState.currentUser?.userId,
         updatedProfile,
         avatarFile,
       })
-    );
+    ).then((action) => {
+      if (action.payload && action.payload.success) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      }
+    });
   };
-  const onChangeDatePicker = (date: any, dateString: any) => {
-    setDateOfBirth(dateString);
-  };
-
-  const dateString = profileState.currentProfile?.dateOfBirth;
-  const dateFormat = "YYYY-MM-DD";
-  const dateValue = dateString ? moment(dateString, dateFormat) : null;
 
   const onChangeAvatar = (event: any) => {
     if (event.fileList.length > 0) {
@@ -73,8 +69,22 @@ const page: React.FC = () => {
     }
   };
 
+  const onChangeDatePicker = (date: any, dateString: any) => {
+    setDateOfBirth(dateString);
+  };
+
+  const openNotification = (pauseOnHover: boolean) => {
+    api.open({
+      message: "Profile Updated",
+      description: "Profile updated successfully. Refreshing the page...",
+      showProgress: true,
+      pauseOnHover,
+    });
+  };
+
   return (
     <>
+      {contextHolder}
       {isClient && userState.currentUser ? (
         <Layout
           style={{
@@ -130,11 +140,10 @@ const page: React.FC = () => {
                         avatar: userState.currentUser?.avatar,
                         email: userState.currentUser?.email,
                         fullName: userState.currentUser?.fullName,
-                        address: profileState.currentProfile?.address,
-                        telephoneNumber:
-                          profileState.currentProfile?.telephoneNumber,
-                        gender: profileState.currentProfile?.gender,
-                        dateOfBirth: profileState.currentProfile?.dateOfBirth,
+                        address: userState.currentUser?.address,
+                        telephoneNumber: userState.currentUser?.telephoneNumber,
+                        gender: userState.currentUser?.gender,
+                        dateOfBirth: userState.currentUser?.dateOfBirth,
                       }}
                     >
                       <Form.Item
@@ -147,14 +156,12 @@ const page: React.FC = () => {
                           },
                         ]}
                       >
-                        <Input value={userState.currentUser?.fullName} />
+                        <Input />
                       </Form.Item>
                       <Form.Item label="Email" name="email">
                         {editingEmail ? (
                           <span>
-                            <Input
-                              defaultValue={userState.currentUser?.email}
-                            />
+                            <Input value={userState.currentUser?.email} />
                           </span>
                         ) : (
                           <>
@@ -173,11 +180,6 @@ const page: React.FC = () => {
                       </Form.Item>
                       <Form.Item label="Company ID" name="companyId">
                         <Input
-                          value={
-                            profileState.currentProfile?.companyId?.length
-                              ? profileState.currentProfile?.companyId[0]?.id
-                              : ""
-                          }
                           disabled={true}
                           style={{
                             color: "rgba(0, 0, 0, 0.88)",
@@ -186,11 +188,6 @@ const page: React.FC = () => {
                       </Form.Item>
                       <Form.Item label="Company Name" name="companyName">
                         <Input
-                          value={
-                            profileState.currentProfile?.companyId?.length
-                              ? profileState.currentProfile?.companyId[0]?.name
-                              : ""
-                          }
                           disabled={true}
                           style={{
                             color: "rgba(0, 0, 0, 0.88)",
@@ -199,11 +196,6 @@ const page: React.FC = () => {
                       </Form.Item>
                       <Form.Item label="Job Title" name="jobTitle">
                         <Input
-                          value={
-                            profileState.currentProfile?.companyId?.length
-                              ? profileState.currentProfile?.jobTitle
-                              : ""
-                          }
                           disabled={true}
                           style={{
                             color: "rgba(0, 0, 0, 0.88)",
@@ -216,11 +208,11 @@ const page: React.FC = () => {
                         rules={[
                           {
                             required: true,
-                            message: "Please input your telephone number!",
+                            message: "Please input your address!",
                           },
                         ]}
                       >
-                        <Input value={profileState.currentProfile?.address} />
+                        <Input />
                       </Form.Item>
                       <Form.Item
                         label="Telephone Number"
@@ -232,9 +224,7 @@ const page: React.FC = () => {
                           },
                         ]}
                       >
-                        <Input
-                          value={profileState.currentProfile?.telephoneNumber}
-                        />
+                        <InputNumber style={{ width: "100%" }} />
                       </Form.Item>
                       <Form.Item
                         label="Gender"
@@ -283,9 +273,13 @@ const page: React.FC = () => {
                         ]}
                       >
                         <DatePicker
+                          format="YYYY-MM-DD"
                           onChange={onChangeDatePicker}
-                          defaultValue={dateValue}
-                          format={dateFormat}
+                          defaultValue={
+                            userState.currentUser.dateOfBirth
+                              ? dayjs(userState.currentUser.dateOfBirth)
+                              : dayjs("1970-01-01")
+                          }
                         />
                       </Form.Item>
                       <Form.Item wrapperCol={{ offset: 4, span: 16 }}>
@@ -307,21 +301,28 @@ const page: React.FC = () => {
                 </Col>
                 <Col span={8}>
                   <Row
-                    justify="center"
-                    align="middle"
-                    style={{ height: "100%" }}
+                    className="d-flex justify-content-center"
+                    style={{
+                      height: "100%",
+                      textAlign: "center",
+                    }}
                   >
-                    <Flex vertical justify="center" align="center" gap="small">
+                    <Flex justify="center" align="center" gap="small" vertical>
                       <Image
                         src={userState.currentUser?.avatar}
-                        width={100}
+                        width={200}
+                        height={200}
                         preview={true}
-                        style={{ cursor: "pointer", borderRadius: "50%" }}
+                        style={{
+                          cursor: "pointer",
+                          objectFit: "cover",
+                          border: "2px solid #f5f5f5",
+                          borderRadius: "50%",
+                        }}
                       />
                       <Upload
                         name="avatar"
                         listType="picture-circle"
-                        className="avatar-uploader"
                         onChange={onChangeAvatar}
                       >
                         <span

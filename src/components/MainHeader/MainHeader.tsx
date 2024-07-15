@@ -30,7 +30,6 @@ const MainHeader: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const userState = useAppSelector(userInfo);
-  console.log(userState);
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   const [googleUser, setGoogleUser] = useState<User | null>(null);
@@ -39,7 +38,6 @@ const MainHeader: React.FC = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user);
         setGoogleUser(user);
       } else {
         // router.push("/account/login");

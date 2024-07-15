@@ -9,17 +9,6 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   lastLogin: string;
-}
-
-export interface UserState {
-  currentUser: User | undefined;
-  isLoading: boolean;
-  success: boolean;
-  message: string;
-  error: string | null;
-}
-
-export interface Profile {
   address: string;
   telephoneNumber: string;
   gender: string;
@@ -42,8 +31,8 @@ export interface Profile {
   jobTitle: string;
 }
 
-export interface ProfileState {
-  currentProfile: Profile | undefined;
+export interface UserState {
+  currentUser: User | undefined;
   isLoading: boolean;
   success: boolean;
   message: string;

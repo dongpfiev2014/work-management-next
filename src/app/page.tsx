@@ -43,7 +43,6 @@ import React, { useEffect, useState } from "react";
 import {
   DragDropContext,
   Draggable,
-  DragUpdate,
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";

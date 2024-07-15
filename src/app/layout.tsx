@@ -26,9 +26,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = cookies();
-  const refreshToken = cookieStore.get("refreshToken");
-  console.log(refreshToken);
+  // const cookieStore = cookies();
+  // const refreshToken = cookieStore.get("refreshToken");
+  // console.log(refreshToken);
 
   return (
     <html lang="en">
