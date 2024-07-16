@@ -2,7 +2,7 @@
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { signout } from "@/reducer/authReducer";
-import { userInfo } from "@/selector/userSelector";
+import { companiesList, userInfo } from "@/selector/userSelector";
 import {
   Avatar,
   Badge,
@@ -25,15 +25,50 @@ import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { BellOutlined, UserOutlined } from "@ant-design/icons";
 import defaultAvatar from "@/assets/avatar-default.png";
+import io from "socket.io-client";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { addJoinRequest, approveJoinRequest } from "@/reducer/joinRequestSlice";
+
+interface Notification {
+  userId: string;
+  organizationId: string;
+  position: string;
+  reason: string;
+  role: string;
+}
+
+const socket = io(
+  `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}`
+);
 
 const MainHeader: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const userState = useAppSelector(userInfo);
+  const companiesState = useAppSelector(companiesList);
   const accessToken =
     typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   const [googleUser, setGoogleUser] = useState<User | null>(null);
   const auth = getAuth(app);
+  const requests = useSelector(
+    (state: RootState) => state.joinRequets.requests
+  );
+
+  useEffect(() => {
+    if ("admin" === "admin") {
+      socket.emit("join-admin", {
+        userId: userState.currentUser?._id,
+      });
+    }
+    socket.on("join-request", (data) => {
+      dispatch(addJoinRequest(data));
+    });
+
+    socket.on("request-approved", (data) => {
+      dispatch(approveJoinRequest(data));
+    });
+  }, [dispatch]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -45,6 +80,10 @@ const MainHeader: React.FC = () => {
     });
     return () => unsubscribe();
   }, [auth]);
+
+  const handleApprove = (id: string) => {
+    socket.emit("approve-request", { id });
+  };
 
   const handleSignOut = async () => {
     signOut(auth);
@@ -71,6 +110,7 @@ const MainHeader: React.FC = () => {
                 {"Do your job well"}
               </Typography.Text>
             </Flex>
+
             <Flex justify="center" align="center" gap={10}>
               <Input.Search
                 placeholder="Search project, task, etc..."
@@ -82,27 +122,37 @@ const MainHeader: React.FC = () => {
               />
               <Dropdown
                 dropdownRender={() => (
-                  <Card
-                    hoverable
-                    style={{
-                      minWidth: 400,
-                    }}
-                    type="inner"
-                  >
-                    <List
-                      renderItem={(item, index) => (
-                        <>
-                          <List.Item>
-                            <List.Item.Meta />
-                          </List.Item>
-                        </>
-                      )}
-                    />
-                  </Card>
+                  <>
+                    <Card
+                      hoverable
+                      style={{
+                        minWidth: 400,
+                      }}
+                      type="inner"
+                    >
+                      <List
+                        dataSource={requests}
+                        renderItem={(req: any, index) => (
+                          <>
+                            <List.Item key={index}>
+                              <p>
+                                User {req.userId} wants to join organization{" "}
+                                {req.organizationId} as {req.position}. Reason:{" "}
+                                {req.reason}, Role: {req.role}
+                              </p>
+                              <button onClick={() => handleApprove(req.id)}>
+                                Approve
+                              </button>
+                            </List.Item>
+                          </>
+                        )}
+                      />
+                    </Card>
+                  </>
                 )}
                 placement="bottom"
               >
-                <Badge count={4} size="small">
+                <Badge count={requests.length} size="small">
                   <BellOutlined
                     style={{ cursor: "pointer", fontSize: "20px" }}
                   />

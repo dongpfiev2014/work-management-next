@@ -6,6 +6,7 @@ import { userInfo } from "@/selector/userSelector";
 import { fetchUser } from "@/reducer/authReducer";
 import { usePathname, useRouter } from "next/navigation";
 import { message } from "antd";
+import { fetchCompanies } from "@/reducer/companiesReducer";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -26,7 +27,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const fetchUserInfo = async () => {
       if (accessToken && accessToken !== "undefined" && accessToken !== null) {
         // Gọi action fetchUser với accessToken
-        await dispatch(fetchUser());
+        const userResponse = await dispatch(fetchUser());
+        const userId = userResponse.payload.data.userId;
+        await Promise.all([dispatch(fetchCompanies(userId))]);
       } else {
         if (
           !isLoginPage &&

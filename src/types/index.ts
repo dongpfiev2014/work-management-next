@@ -1,5 +1,5 @@
 export interface User {
-  id: string;
+  _id: string;
   userId: string;
   fullName: string;
   email: string;
@@ -13,9 +13,9 @@ export interface User {
   telephoneNumber: string;
   gender: string;
   dateOfBirth: string;
-  companyId: [
+  companies: [
     {
-      id: string;
+      _id: string;
       name: string;
       // industry: string;
       // size: string;
@@ -33,6 +33,29 @@ export interface User {
 
 export interface UserState {
   currentUser: User | undefined;
+  isLoading: boolean;
+  success: boolean;
+  message: string;
+  error: string | null;
+}
+
+export interface Companies {
+  _id: string;
+  owner: string;
+  organizationName: string;
+  address: string;
+  email: string;
+  phoneNumber: string;
+  industry: string;
+  website: string;
+  employees: [string];
+  description: string;
+  companyLogo: string;
+  department: [string];
+}
+
+export interface CompanyState {
+  companies: Companies[] | undefined;
   isLoading: boolean;
   success: boolean;
   message: string;

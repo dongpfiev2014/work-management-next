@@ -3,7 +3,9 @@ import {
   Button,
   Card,
   Checkbox,
+  Flex,
   Form,
+  Image,
   Input,
   Menu,
   Modal,
@@ -11,6 +13,8 @@ import {
   Space,
   Tabs,
   Tag,
+  Typography,
+  Upload,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -29,10 +33,12 @@ import { GrTrash } from "react-icons/gr";
 import { VscSettingsGear } from "react-icons/vsc";
 import { GiTimeBomb } from "react-icons/gi";
 import { useAppSelector } from "@/lib/hooks";
-import { userInfo } from "@/selector/userSelector";
+import { companiesList, userInfo } from "@/selector/userSelector";
 import { GoPasskeyFill } from "react-icons/go";
 import { useState } from "react";
 import { useForm } from "antd/es/form/Form";
+import axiosClient from "@/apis/axiosClient";
+import io from "socket.io-client";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -115,12 +121,20 @@ const items: MenuItem[] = [
   },
 ];
 
+const socket = io(
+  `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}`
+);
+
 const Navigation: React.FC = () => {
   const userState = useAppSelector(userInfo);
+  const companiesState = useAppSelector(companiesList);
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [form] = useForm();
+  const [form1] = useForm();
+  const [form2] = useForm();
   const [tabKey, setTabKey] = useState("1");
+  const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
+  console.log(companiesState);
 
   const onClick: MenuProps["onClick"] = (e) => {
     console.log("click ", e);
@@ -131,15 +145,73 @@ const Navigation: React.FC = () => {
   };
 
   const handleFormSubmit = () => {
-    form.submit();
-    setConfirmLoading(true);
+    if (tabKey === "1") {
+      form1.submit();
+    } else form2.submit();
   };
 
-  const onFinishCreateOrganization = (values: any) => {
+  const onFinishCreateOrganization = async (values: any) => {
     console.log("CreateOrganization:", values);
+    try {
+      setConfirmLoading(true);
+      const formData = new FormData();
+      formData.append("newCompanyData", JSON.stringify(values));
+      if (logoFile) {
+        formData.append("companyLogo", logoFile);
+      }
+      const response = await axiosClient.post(
+        `/company/${userState.currentUser?.userId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response && response.status === 201 && response.data) {
+        console.log(response.data);
+        window.location.reload();
+        return response.data;
+      }
+    } catch (error) {
+      console.log("Error creating organization:", error);
+    }
   };
+
+  const JoinOrganization = (
+    userId: string,
+    organizationId: string,
+    position: string,
+    reason: string,
+    role: string
+  ) => {
+    socket.emit("join-request", {
+      userId: userId,
+      organizationId: organizationId,
+      position: position,
+      reason: reason,
+      role: role,
+    });
+  };
+
+  socket.on("disconnect", () => {
+    console.log("Disconnected from server");
+  });
+
   const onFinishJoinOrganization = (values: any) => {
-    console.log("JoinOrganizatio:", values);
+    setConfirmLoading(true);
+    const { organizationId, position, reason, role } = values;
+    const userId = userState.currentUser?.userId;
+    if (userId) {
+      JoinOrganization(userId, organizationId, position, reason, role);
+    }
+  };
+
+  const onChangeLogo = (event: any) => {
+    if (event.fileList.length > 0) {
+      setLogoFile(event.fileList[0].originFileObj);
+    } else {
+    }
   };
 
   const handleCancel = () => {
@@ -161,19 +233,24 @@ const Navigation: React.FC = () => {
   ];
 
   const positionOptions = [
-    { value: "juniorSoftwareDeveloper", label: "Junior Software Developer" },
-    { value: "seniorSoftwareDeveloper", label: "Senior Software Developer" },
-    { value: "projectManager", label: "Project Manager" },
-    { value: "teamLead", label: "Team Lead" },
-    { value: "qaEngineer", label: "QA Engineer" },
-    { value: "productManager", label: "Product Manager" },
-    { value: "hrAdministrator", label: "HR Administrator" },
-    { value: "systemAdministrator", label: "System Administrator" },
-    { value: "uiUxDesigner", label: "UI/UX Designer" },
-    { value: "devOpsEngineer", label: "DevOps Engineer" },
-    { value: "marketingSpecialist", label: "Marketing Specialist" },
-    { value: "salesManager", label: "Sales Manager" },
-    { value: "customerSupport", label: "Customer Support" },
+    {
+      value: "Fresher Software Developer",
+      label: "Fresher Software Developer",
+    },
+    { value: "Junior Software Developer", label: "Junior Software Developer" },
+    { value: "Senior Software Developer", label: "Senior Software Developer" },
+    { value: "Project Manager", label: "Project Manager" },
+    { value: "Team Lead", label: "Team Lead" },
+    { value: "QA Engineer", label: "QA Engineer" },
+    { value: "Product Manager", label: "Product Manager" },
+    { value: "HR Administrator", label: "HR Administrator" },
+    { value: "System Administrator", label: "System Administrator" },
+    { value: "UIUX Designer", label: "UI/UX Designer" },
+    { value: "DevOps Engineer", label: "DevOps Engineer" },
+    { value: "Marketing Specialist", label: "Marketing Specialist" },
+    { value: "Sales Manager", label: "Sales Manager" },
+    { value: "Customer Support", label: "Customer Support" },
+    { value: "Other", label: "Other" },
   ];
 
   const tabItems = [
@@ -186,7 +263,7 @@ const Navigation: React.FC = () => {
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             onFinish={onFinishCreateOrganization}
-            form={form}
+            form={form1}
           >
             <Form.Item
               label="Organization Name"
@@ -244,11 +321,17 @@ const Navigation: React.FC = () => {
             <Form.Item label="Industry" name="industry">
               <Input placeholder="Enter your company industry" />
             </Form.Item>
-            <Form.Item label="Number of Employees" name="numberOfEmployees">
-              <Input placeholder="Enter the number of employees" />
-            </Form.Item>
             <Form.Item label="Description" name="description">
               <Input.TextArea placeholder="Enter a brief description of your company" />
+            </Form.Item>
+            <Form.Item label="Company Logo">
+              <Upload
+                name="companyLogo"
+                listType="picture-circle"
+                onChange={onChangeLogo}
+              >
+                Upload
+              </Upload>
             </Form.Item>
           </Form>
         </>
@@ -262,7 +345,7 @@ const Navigation: React.FC = () => {
           <Form
             layout="vertical"
             onFinish={onFinishJoinOrganization}
-            form={form}
+            form={form2}
           >
             <Form.Item
               label="Organization ID"
@@ -315,28 +398,38 @@ const Navigation: React.FC = () => {
   return (
     <>
       <Card>
-        <Card.Meta
-          avatar={
-            <Avatar
-              src={
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYtQnQqqG4Dy3gLgYr85AymXaj2tX09X8LMA&s"
-              }
-            />
-            // <Avatar src={userState.currentUser?.companies[0] || "Apple Inc."} />
-          }
-          title={"Apple Inc."}
-          // title={userState.currentUser?.companies[0] || "Apple Inc."}
-          description={
-            <>
-              <Space size="small" style={{ cursor: "pointer" }}>
-                <GoPasskeyFill />
-                {"Private"}
-                <FcPlus size={20} onClick={showModal} />
-              </Space>
-            </>
-          }
-        />
+        <Flex vertical>
+          <Card.Meta
+            avatar={
+              <Avatar
+                size={35}
+                src={
+                  companiesState.companies?.length
+                    ? companiesState.companies[0].companyLogo
+                    : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYtQnQqqG4Dy3gLgYr85AymXaj2tX09X8LMA&s"
+                }
+              />
+            }
+            title={
+              companiesState.companies?.length
+                ? companiesState.companies[0].organizationName
+                : "Apple Inc."
+            }
+            description={
+              <>
+                <Space size="small" style={{ cursor: "pointer" }}>
+                  <GoPasskeyFill />
+                  {"Private"}
+                  <FcPlus size={20} onClick={showModal} />
+                </Space>
+              </>
+            }
+          />
+        </Flex>
       </Card>
+      <Typography.Text type="secondary">
+        ID: {companiesState.companies?.[0]?._id}
+      </Typography.Text>
       <Menu
         onClick={onClick}
         style={{ width: "100%" }}
@@ -346,7 +439,6 @@ const Navigation: React.FC = () => {
       />
       <Modal
         open={open}
-        // onOk={handleOk}
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
         footer={[
