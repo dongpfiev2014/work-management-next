@@ -14,6 +14,7 @@ import {
   Flex,
   Input,
   List,
+  Popconfirm,
   Row,
   Space,
   Typography,
@@ -28,15 +29,12 @@ import defaultAvatar from "@/assets/avatar-default.png";
 import io from "socket.io-client";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { addJoinRequest, approveJoinRequest } from "@/reducer/joinRequestSlice";
-
-interface Notification {
-  userId: string;
-  organizationId: string;
-  position: string;
-  reason: string;
-  role: string;
-}
+import {
+  addJoinRequest,
+  approveJoinRequest,
+  requestApproved,
+} from "@/reducer/joinRequestSlice";
+import axiosClient from "@/apis/axiosClient";
 
 const socket = io(
   `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}`
@@ -56,19 +54,39 @@ const MainHeader: React.FC = () => {
   );
 
   useEffect(() => {
-    if ("admin" === "admin") {
-      socket.emit("join-admin", {
-        userId: userState.currentUser?._id,
-      });
+    if (!userState.currentUser || !companiesState.companies) {
+      return;
     }
+    const userId = userState.currentUser?.userId;
+
+    const listOfOwnershipCompanies = companiesState.companies?.filter((item) =>
+      userId ? item.owner.includes(userId) : false
+    );
+
+    socket.emit("join-admin", {
+      userId: userState.currentUser?._id,
+    });
+
     socket.on("join-request", (data) => {
-      dispatch(addJoinRequest(data));
+      const currentCompanyNeedApprove = listOfOwnershipCompanies.filter(
+        (item) => item._id === data.organizationId
+      );
+      if (currentCompanyNeedApprove?.length === 1) {
+        data.organizationName = currentCompanyNeedApprove[0].organizationName;
+        dispatch(addJoinRequest(data));
+      }
     });
 
     socket.on("request-approved", (data) => {
       dispatch(approveJoinRequest(data));
+      dispatch(requestApproved(data));
     });
-  }, [dispatch]);
+    // Cleanup
+    return () => {
+      socket.off("join-request");
+      socket.off("request-approved");
+    };
+  }, [dispatch, userState.currentUser, companiesState.companies]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -81,8 +99,20 @@ const MainHeader: React.FC = () => {
     return () => unsubscribe();
   }, [auth]);
 
-  const handleApprove = (id: string) => {
-    socket.emit("approve-request", { id });
+  const handleApprove = (
+    id: string,
+    userId: string,
+    organizationId: string,
+    role: string,
+    position: string
+  ) => {
+    socket.emit("approve-request", {
+      id,
+      userId,
+      organizationId,
+      role,
+      position,
+    });
   };
 
   const handleSignOut = async () => {
@@ -126,7 +156,8 @@ const MainHeader: React.FC = () => {
                     <Card
                       hoverable
                       style={{
-                        minWidth: 400,
+                        width: 500,
+                        padding: "10px",
                       }}
                       type="inner"
                     >
@@ -135,14 +166,27 @@ const MainHeader: React.FC = () => {
                         renderItem={(req: any, index) => (
                           <>
                             <List.Item key={index}>
-                              <p>
-                                User {req.userId} wants to join organization{" "}
-                                {req.organizationId} as {req.position}. Reason:{" "}
-                                {req.reason}, Role: {req.role}
-                              </p>
-                              <button onClick={() => handleApprove(req.id)}>
-                                Approve
-                              </button>
+                              <List.Item.Meta
+                                avatar={<Avatar src={req.avatar} />}
+                                title={`User ${req.fullName} wants to join organization ${req.organizationName} as ${req.position}`}
+                                description={`Reason: ${req.reason}, Role: ${req.role}`}
+                              />
+                              <Popconfirm
+                                title="Are you sure to approve this request?"
+                                onConfirm={() =>
+                                  handleApprove(
+                                    req.id,
+                                    req.userId,
+                                    req.organizationId,
+                                    req.role,
+                                    req.position
+                                  )
+                                }
+                                okText="Yes"
+                                cancelText="No"
+                              >
+                                <Button type="primary">Approve</Button>
+                              </Popconfirm>
                             </List.Item>
                           </>
                         )}

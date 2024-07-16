@@ -28,8 +28,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       if (accessToken && accessToken !== "undefined" && accessToken !== null) {
         // Gọi action fetchUser với accessToken
         const userResponse = await dispatch(fetchUser());
-        const userId = userResponse.payload.data.userId;
-        await Promise.all([dispatch(fetchCompanies(userId))]);
+
+        if (userResponse && userResponse.payload && userResponse.payload.data) {
+          const userId = userResponse.payload.data.userId;
+          await Promise.all([dispatch(fetchCompanies(userId))]);
+        }
       } else {
         if (
           !isLoginPage &&

@@ -1,0 +1,9 @@
+.wrapper {
+  padding: 0px;
+}
+
+.cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}

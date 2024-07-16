@@ -39,87 +39,9 @@ import { useState } from "react";
 import { useForm } from "antd/es/form/Form";
 import axiosClient from "@/apis/axiosClient";
 import io from "socket.io-client";
+import { useRouter } from "next/navigation";
 
 type MenuItem = Required<MenuProps>["items"][number];
-
-const items: MenuItem[] = [
-  {
-    key: "general",
-    label: "General",
-    type: "group",
-    children: [
-      { key: "allTasks", label: "All Tasks", icon: <FcParallelTasks /> },
-      { key: "members", label: "Members", icon: <FcAssistant /> },
-      { key: "departments", label: "Departments", icon: <FcDepartment /> },
-      { key: "report", label: "Report", icon: <FcRatings /> },
-    ],
-  },
-  {
-    key: "teamBoards",
-    label: "Team Boards",
-    type: "group",
-    children: [
-      { key: "generalTeam", label: "General", icon: <FcParallelTasks /> },
-      { key: "uiux", label: "UI/UX Design", icon: <FcAssistant /> },
-      {
-        key: "webDevelopment",
-        label: "Web Development",
-        icon: <FcDepartment />,
-      },
-      {
-        key: "mobileDevelopment",
-        label: "Mobile Development",
-        icon: <FcRatings />,
-      },
-    ],
-  },
-  {
-    key: "appearance",
-    label: "Appearance",
-    type: "group",
-    children: [
-      { key: "template", label: "Template", icon: <CgTemplate /> },
-      { key: "archive", label: "Archive", icon: <BsArchive /> },
-      {
-        key: "trash",
-        label: "Trash",
-        icon: <GrTrash />,
-      },
-      {
-        key: "settings",
-        label: "Settings",
-        icon: <VscSettingsGear />,
-      },
-    ],
-  },
-  {
-    key: "colorLegend",
-    label: "Color Legend",
-    type: "group",
-    children: [
-      {
-        key: "important",
-        label: <Tag color="orange">Important</Tag>,
-        icon: <FcHighPriority />,
-      },
-      {
-        key: "urgent",
-        label: <Tag color="magenta">Urgent</Tag>,
-        icon: <FcExpired />,
-      },
-      {
-        key: "Critical",
-        label: <Tag color="purple">Critical</Tag>,
-        icon: <GiTimeBomb />,
-      },
-      {
-        key: "neither",
-        label: <Tag color="cyan">Neither</Tag>,
-        icon: <FcSelfServiceKiosk />,
-      },
-    ],
-  },
-];
 
 const socket = io(
   `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}`
@@ -128,6 +50,7 @@ const socket = io(
 const Navigation: React.FC = () => {
   const userState = useAppSelector(userInfo);
   const companiesState = useAppSelector(companiesList);
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [form1] = useForm();
@@ -180,31 +103,46 @@ const Navigation: React.FC = () => {
 
   const JoinOrganization = (
     userId: string,
+    fullName: string | undefined,
     organizationId: string,
     position: string,
     reason: string,
-    role: string
+    role: string,
+    avatar: string | undefined
   ) => {
     socket.emit("join-request", {
       userId: userId,
+      fullName: fullName,
       organizationId: organizationId,
       position: position,
       reason: reason,
       role: role,
+      avatar: avatar,
     });
   };
 
-  socket.on("disconnect", () => {
-    console.log("Disconnected from server");
-  });
+  socket.on("disconnect", () => {});
 
   const onFinishJoinOrganization = (values: any) => {
     setConfirmLoading(true);
     const { organizationId, position, reason, role } = values;
     const userId = userState.currentUser?.userId;
+    const avatar = userState.currentUser?.avatar;
+    const fullName = userState.currentUser?.fullName;
     if (userId) {
-      JoinOrganization(userId, organizationId, position, reason, role);
+      JoinOrganization(
+        userId,
+        fullName,
+        organizationId,
+        position,
+        reason,
+        role,
+        avatar
+      );
     }
+    setTimeout(() => {
+      window.location.reload();
+    }, 5000);
   };
 
   const onChangeLogo = (event: any) => {
@@ -392,6 +330,101 @@ const Navigation: React.FC = () => {
           </Form>
         </>
       ),
+    },
+  ];
+
+  const items: MenuItem[] = [
+    {
+      key: "general",
+      label: "General",
+      type: "group",
+
+      children: [
+        {
+          key: "allTasks",
+          label: "All Tasks",
+          icon: <FcParallelTasks />,
+          onClick: () => router.push("/"),
+        },
+        {
+          key: "members",
+          label: "Members",
+          icon: <FcAssistant />,
+          onClick: () => router.push("/members"),
+        },
+        {
+          key: "departments",
+          label: "Departments",
+          icon: <FcDepartment />,
+          onClick: () => router.push("/departments"),
+        },
+        { key: "report", label: "Report", icon: <FcRatings /> },
+      ],
+    },
+    {
+      key: "teamBoards",
+      label: "Team Boards",
+      type: "group",
+      children: [
+        { key: "generalTeam", label: "General", icon: <FcParallelTasks /> },
+        { key: "uiux", label: "UI/UX Design", icon: <FcAssistant /> },
+        {
+          key: "webDevelopment",
+          label: "Web Development",
+          icon: <FcDepartment />,
+        },
+        {
+          key: "mobileDevelopment",
+          label: "Mobile Development",
+          icon: <FcRatings />,
+        },
+      ],
+    },
+    {
+      key: "appearance",
+      label: "Appearance",
+      type: "group",
+      children: [
+        { key: "template", label: "Template", icon: <CgTemplate /> },
+        { key: "archive", label: "Archive", icon: <BsArchive /> },
+        {
+          key: "trash",
+          label: "Trash",
+          icon: <GrTrash />,
+        },
+        {
+          key: "settings",
+          label: "Settings",
+          icon: <VscSettingsGear />,
+        },
+      ],
+    },
+    {
+      key: "colorLegend",
+      label: "Color Legend",
+      type: "group",
+      children: [
+        {
+          key: "important",
+          label: <Tag color="orange">Important</Tag>,
+          icon: <FcHighPriority />,
+        },
+        {
+          key: "urgent",
+          label: <Tag color="magenta">Urgent</Tag>,
+          icon: <FcExpired />,
+        },
+        {
+          key: "Critical",
+          label: <Tag color="purple">Critical</Tag>,
+          icon: <GiTimeBomb />,
+        },
+        {
+          key: "neither",
+          label: <Tag color="cyan">Neither</Tag>,
+          icon: <FcSelfServiceKiosk />,
+        },
+      ],
     },
   ];
 

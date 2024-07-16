@@ -1,5 +1,6 @@
 // src/joinRequestsSlice.ts
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axiosClient from "@/apis/axiosClient";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface JoinRequest {
   userId: string;
   organizationId: string;
@@ -14,6 +15,26 @@ interface JoinRequestsState {
 const initialState: JoinRequestsState = {
   requests: [],
 };
+
+export const requestApproved = createAsyncThunk(
+  "joinRequests/approveJoinRequest",
+  async (data: any, thunkAPI) => {
+    try {
+      const response = await axiosClient.post(
+        "/request/request-approved",
+        data
+      );
+      if (response.status === 200 && response.data) {
+        console.log(response.data);
+        return response.data;
+      }
+    } catch (error: any) {
+      console.log(error);
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 const joinRequestsSlice = createSlice({
   name: "joinRequests",
   initialState,
