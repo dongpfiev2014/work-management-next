@@ -60,20 +60,24 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
   const userState = useAppSelector(userInfo);
   const [membersList, setMembersList] = useState<any[]>([]);
   const [imageFile, setImageFile] = useState<File | undefined>(undefined);
-  // const [isMember, setIsMember] = useState(
-  //   membersList.includes(userState.currentUser?._id)
-  // );
-  const [isMember, setIsMember] = useState(true);
+  const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
     getMembers();
     fetchProjects();
   }, [userState.currentUser, params.departmentId]);
 
+  useEffect(() => {
+    const isMemberReally = membersList.some(
+      (item) => item._id === userState.currentUser?._id
+    );
+    setIsMember(isMemberReally);
+  }, [membersList, userState.currentUser]);
+
   const getMembers = async () => {
     try {
       const response = await axiosClient.get(
-        `/projects/auth/${params.departmentId}`
+        `/projects/author/${params.departmentId}`
       );
       if (response.status === 200 && response.data) {
         console.log(response.data);
@@ -234,7 +238,8 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
                     ]}
                     extra={
                       <Image
-                        width={272}
+                        width={220}
+                        height={150}
                         alt="logo"
                         src={item.projectImage}
                         style={{ borderRadius: "15px" }}
