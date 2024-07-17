@@ -12,6 +12,7 @@ import {
   Breadcrumb,
   Flex,
   Space,
+  Typography,
 } from "antd";
 import { useState, useEffect } from "react";
 import axiosClient from "@/apis/axiosClient";
@@ -26,6 +27,7 @@ interface Department {
   _id: string;
   name: string;
   description: string;
+  departmentName: string;
   owners: string[]; // Array of owner user IDs
   memberAccesses: string[]; // Array of group access user IDs
 }
@@ -44,7 +46,6 @@ const Departments: React.FC = () => {
   const companiesState = useAppSelector(companiesList);
   const [isOwner, setIsOwner] = useState(false);
   const [membersList, setMembersList] = useState<any[]>([]);
-  const [filteredMembers, setFilteredMembers] = useState<any[]>([]);
 
   useEffect(() => {
     if (companiesState?.companies && companiesState.companies?.length > 0) {
@@ -74,8 +75,11 @@ const Departments: React.FC = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axiosClient.get("/departments");
+      const response = await axiosClient.get(
+        `/departments/${companiesState.companies?.[0]._id}`
+      );
       if (response.status === 200 && response.data) {
+        console.log(response.data);
         setDepartments(response.data.data);
       }
     } catch (error) {
@@ -84,15 +88,36 @@ const Departments: React.FC = () => {
   };
 
   const handleCreateDepartment = async (values: any) => {
+    const { owners, memberAccesses, ...res } = values;
+    const emailRegex = /\((.*?)\)/g;
+    let newOwners = [];
+    let newMemberAccesses = [];
+    let match;
+
+    while ((match = emailRegex.exec(owners)) !== null) {
+      newOwners.push(match[1]);
+    }
+    while ((match = emailRegex.exec(memberAccesses)) !== null) {
+      newMemberAccesses.push(match[1]);
+    }
+    const newDepartment = {
+      newOwners,
+      newMemberAccesses,
+      ...res,
+    };
+    console.log(newDepartment);
     try {
-      const response = await axiosClient.post("/departments", values);
-      if (response.status === 201 && response.data) {
+      const response = await axiosClient.post(
+        `/departments/${companiesState.companies?.[0]?._id}`,
+        newDepartment
+      );
+      if (response.status === 200 && response.data) {
         setDepartments([...departments, response.data.data]);
         setIsModalVisible(false);
         form.resetFields();
       }
     } catch (error) {
-      console.error("Failed to create department:", error);
+      console.log("Failed to create department:", error);
     }
   };
 
@@ -143,13 +168,53 @@ const Departments: React.FC = () => {
       <div className={styles.cardContainer}>
         {departments.map((department) => (
           <Card
+            hoverable
             key={department._id}
-            title={department.name}
-            style={{ width: 300 }}
+            title={department.departmentName}
+            style={{ width: 270 }}
+            onClick={() => router.push(`/departments/${department._id}`)}
           >
-            <p>{department.description}</p>
-            <p>Owners: {department.owners.join(", ")}</p>
-            <p>Group Accesses: {department.memberAccesses.join(", ")}</p>
+            {/* <Typography.Text>{department.description}</Typography.Text> */}
+            <Flex vertical gap={5}>
+              <Flex gap={10} align="center" justify="space-between">
+                <p>Owners:</p>
+                <Avatar.Group
+                  size={35}
+                  max={{
+                    count: 2,
+                    style: { color: "#f56a00", backgroundColor: "#fde3cf" },
+                  }}
+                >
+                  {membersList.map((mem) => {
+                    const member = department.owners.find(
+                      (item) => item === mem.userId
+                    );
+                    if (member) {
+                      return <Avatar key={mem} src={mem.avatar} />;
+                    }
+                  })}
+                </Avatar.Group>
+              </Flex>
+              <Flex gap={10} align="center" justify="space-between">
+                <p>Group Accesses:</p>
+                <Avatar.Group
+                  size={35}
+                  max={{
+                    count: 2,
+                    style: { color: "#f56a00", backgroundColor: "#fde3cf" },
+                  }}
+                >
+                  {membersList.map((mem) => {
+                    const member = department.memberAccesses.find(
+                      (item) => item === mem.userId
+                    );
+                    if (member) {
+                      return <Avatar key={mem} src={mem.avatar} />;
+                    }
+                  })}
+                </Avatar.Group>
+              </Flex>
+            </Flex>
           </Card>
         ))}
       </div>
@@ -181,7 +246,7 @@ const Departments: React.FC = () => {
               onSelect={onSelect}
               defaultValue=""
               options={membersList.map((member) => ({
-                value: member.fullName,
+                value: `${member.fullName} (${member.email})`,
                 label: (
                   <Space>
                     <Avatar size="small" src={member.avatar} />
@@ -205,7 +270,7 @@ const Departments: React.FC = () => {
               onSelect={onSelect}
               defaultValue=""
               options={membersList.map((member) => ({
-                value: member.fullName,
+                value: `${member.fullName} (${member.email})`,
                 label: (
                   <Space>
                     <Avatar size="small" src={member.avatar} />

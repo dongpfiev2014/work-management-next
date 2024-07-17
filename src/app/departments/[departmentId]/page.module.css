@@ -6,8 +6,7 @@
 }
 
 .cardContainer {
-  display: flex;
-  flex-wrap: wrap;
   gap: 16px;
   padding: 5px;
+  width: 100%;
 }

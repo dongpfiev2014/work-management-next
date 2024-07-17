@@ -14,6 +14,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const IconText = ({ icon, text }: { icon: React.FC; text: string }) => (
   <Space>
@@ -75,7 +76,7 @@ const page = () => {
         ]}
       />
       <List
-        style={{ padding: "10px" }}
+        style={{ padding: "15px" }}
         itemLayout="vertical"
         dataSource={membersList}
         renderItem={(item: any, index) => {
@@ -99,6 +100,7 @@ const page = () => {
                   key="list-vertical-message"
                 />,
               ]}
+              extra={<Link href={`/profile/${item._id}`}>View Profile</Link>}
             >
               <List.Item.Meta
                 style={{ cursor: "pointer" }}
