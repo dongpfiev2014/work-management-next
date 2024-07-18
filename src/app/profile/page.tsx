@@ -20,7 +20,7 @@ import {
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { userInfo } from "@/selector/userSelector";
+import { companiesList, userInfo } from "@/selector/userSelector";
 import Link from "next/link";
 import { User } from "@/types";
 import { updateProfile } from "@/reducer/authReducer";
@@ -29,6 +29,7 @@ import dayjs from "dayjs";
 const page: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const userState = useAppSelector(userInfo);
+  const companies = useAppSelector(companiesList);
   const dispatch = useAppDispatch();
   const [editingEmail, setEditingEmail] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState(
@@ -38,8 +39,10 @@ const page: React.FC = () => {
   const [api, contextHolder] = notification.useNotification();
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    if (companies.companies && companies.companies.length > 0) {
+      setIsClient(true);
+    }
+  }, [companies.companies]);
 
   const onFinish = (value: User) => {
     const updatedProfile = {
@@ -138,8 +141,11 @@ const page: React.FC = () => {
                       onFinish={onFinish}
                       initialValues={{
                         avatar: userState.currentUser?.avatar,
-                        email: userState.currentUser?.email,
                         fullName: userState.currentUser?.fullName,
+                        email: userState.currentUser?.email,
+                        companyId: companies.companies?.[0]._id,
+                        companyName: companies.companies?.[0].organizationName,
+                        jobTitle: userState.currentUser.position,
                         address: userState.currentUser?.address,
                         telephoneNumber: userState.currentUser?.telephoneNumber,
                         gender: userState.currentUser?.gender,

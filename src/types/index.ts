@@ -4,7 +4,8 @@ export interface User {
   fullName: string;
   email: string;
   avatar: string;
-  roles: string[];
+  role: string[];
+  position: string[];
   permissions: string[];
   createdAt: string;
   updatedAt: string;
@@ -16,19 +17,8 @@ export interface User {
   companies: [
     {
       _id: string;
-      name: string;
-      // industry: string;
-      // size: string;
-      // employees: number;
-      // website: string;
-      // description: string;
-      // logo?: string;
-      // createdAt: string;
-      // updatedAt: string;
-      // userId: string;
     }
   ];
-  jobTitle: string;
 }
 
 export interface UserState {

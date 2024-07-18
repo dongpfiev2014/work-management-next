@@ -23,10 +23,11 @@ import styles from "./page.module.css";
 import { HomeOutlined, UserOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/hooks";
-import { companiesList, userInfo } from "@/selector/userSelector";
+import { userInfo } from "@/selector/userSelector";
 import type { GetProp, MentionProps } from "antd";
 import NotAuthorized from "@/app/not-authorized/page";
 import { LikeOutlined, MessageOutlined, StarOutlined } from "@ant-design/icons";
+import Loading from "@/app/loading";
 
 interface Projects {
   _id: string;
@@ -39,6 +40,11 @@ interface Projects {
   createdAt: Date;
   projectImage: string;
 }
+
+interface Department {
+  departmentName: string;
+}
+
 type MentionsOptionProps = GetProp<MentionProps, "options">[number];
 
 const onSelect = (option: MentionsOptionProps) => {
@@ -53,7 +59,11 @@ const IconText = ({ icon, text }: { icon: React.FC; text: string }) => (
 );
 
 const Projects = ({ params }: { params: { departmentId: string } }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [projects, setProjects] = useState<Projects[]>([]);
+  const [currentDepartment, setCurrentDepartment] = useState<Department | null>(
+    null
+  );
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const router = useRouter();
@@ -72,6 +82,7 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
       (item) => item._id === userState.currentUser?._id
     );
     setIsMember(isMemberReally);
+    setIsLoading(false);
   }, [membersList, userState.currentUser]);
 
   const getMembers = async () => {
@@ -96,6 +107,7 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
       if (response.status === 200 && response.data) {
         console.log(response.data);
         setProjects(response.data.data);
+        setCurrentDepartment(response.data.department);
       }
     } catch (error) {
       console.log("Failed to fetch departments:", error);
@@ -159,9 +171,13 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
     return formattedDate;
   };
 
+  if (isLoading) {
+    return <Loading loading={true} />;
+  }
+
   return (
     <>
-      {isMember ? (
+      {isMember && !isLoading ? (
         <div className={styles.wrapper}>
           <Flex
             align="center"
@@ -195,7 +211,7 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
                   },
                 },
                 {
-                  title: "Projects",
+                  title: `${currentDepartment?.departmentName}`,
                 },
               ]}
             />
@@ -292,7 +308,47 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
           </Modal>
         </div>
       ) : (
-        <NotAuthorized />
+        <>
+          {" "}
+          <Flex
+            align="center"
+            justify="space-between"
+            style={{ width: "100%" }}
+          >
+            <Breadcrumb
+              style={{ cursor: "pointer" }}
+              items={[
+                {
+                  onClick: () => {
+                    router.push("/");
+                  },
+                  title: <HomeOutlined />,
+                },
+                {
+                  onClick: () => {
+                    router.push("/");
+                  },
+                  title: (
+                    <>
+                      <UserOutlined />
+                      <span>Application List</span>
+                    </>
+                  ),
+                },
+                {
+                  title: "Departments",
+                  onClick: () => {
+                    router.push("/departments");
+                  },
+                },
+                {
+                  title: `${currentDepartment?.departmentName}`,
+                },
+              ]}
+            />
+          </Flex>
+          <NotAuthorized />
+        </>
       )}
     </>
   );
