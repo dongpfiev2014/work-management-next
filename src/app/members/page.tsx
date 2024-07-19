@@ -1,6 +1,15 @@
 "use client";
 
-import { Avatar, Breadcrumb, List, Space } from "antd";
+import {
+  Avatar,
+  Breadcrumb,
+  Col,
+  Divider,
+  Drawer,
+  List,
+  Row,
+  Space,
+} from "antd";
 import styles from "./page.module.css";
 import React, { useEffect, useState } from "react";
 import axiosClient from "@/apis/axiosClient";
@@ -23,10 +32,24 @@ const IconText = ({ icon, text }: { icon: React.FC; text: string }) => (
   </Space>
 );
 
+interface DescriptionItemProps {
+  title: string;
+  content: React.ReactNode;
+}
+
+const DescriptionItem = ({ title, content }: DescriptionItemProps) => (
+  <div className="site-description-item-profile-wrapper">
+    <p className="site-description-item-profile-p-label">{title}:</p>
+    {content}
+  </div>
+);
+
 const page = () => {
   const companiesState = useAppSelector(companiesList);
   const [membersList, setMembersList] = useState([]);
   const router = useRouter();
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   useEffect(() => {
     if (companiesState?.companies && companiesState.companies?.length > 0) {
@@ -46,6 +69,15 @@ const page = () => {
     } catch (error) {
       console.log("Error", error);
     }
+  };
+
+  const showDrawer = (user: any) => {
+    setSelectedUser(user);
+    setOpenDrawer(true);
+  };
+
+  const onCloseDrawer = () => {
+    setOpenDrawer(false);
   };
 
   return (
@@ -83,24 +115,11 @@ const page = () => {
           return (
             <List.Item
               key={item._id}
-              actions={[
-                <IconText
-                  icon={StarOutlined}
-                  text="156"
-                  key="list-vertical-star-o"
-                />,
-                <IconText
-                  icon={LikeOutlined}
-                  text="156"
-                  key="list-vertical-like-o"
-                />,
-                <IconText
-                  icon={MessageOutlined}
-                  text="2"
-                  key="list-vertical-message"
-                />,
-              ]}
-              extra={<Link href={`/profile/${item._id}`}>View Profile</Link>}
+              extra={
+                <Link href="" onClick={() => showDrawer(item)}>
+                  View Profile
+                </Link>
+              }
             >
               <List.Item.Meta
                 style={{ cursor: "pointer" }}
@@ -110,7 +129,10 @@ const page = () => {
                   <Space direction="vertical" size="small">
                     <Space size="large">
                       <div>Position: {item.position}</div>
-                      <div>Role: {item.role}</div>
+                      <Space size={5}>
+                        <div>Role:</div>
+                        <div style={{ color: "red" }}>{item.role}</div>
+                      </Space>
                     </Space>
                     <div>Email: {item.email}</div>
                   </Space>
@@ -120,6 +142,113 @@ const page = () => {
           );
         }}
       />
+      <Drawer
+        width={720}
+        placement="right"
+        closable={false}
+        onClose={onCloseDrawer}
+        open={openDrawer}
+      >
+        {selectedUser && (
+          <>
+            <p
+              className="site-description-item-profile-p"
+              style={{ marginBottom: 24 }}
+            >
+              User Profile
+            </p>
+            <p className="site-description-item-profile-p">Personal</p>
+            <Row>
+              <Col span={12}>
+                <DescriptionItem
+                  title="Full Name"
+                  content={selectedUser.fullName}
+                />
+              </Col>
+              <Col span={12}>
+                <DescriptionItem title="Account" content={selectedUser.email} />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <DescriptionItem title="City" content="Hanoi" />
+              </Col>
+              <Col span={12}>
+                <DescriptionItem title="Country" content="Vietnam" />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <DescriptionItem
+                  title="Birthday"
+                  content={selectedUser.dateOfBirth}
+                />
+              </Col>
+              <Col span={12}>
+                <DescriptionItem title="Website" content="-" />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={24}>
+                <DescriptionItem
+                  title="Message"
+                  content="Make things as simple as possible but no simpler."
+                />
+              </Col>
+            </Row>
+            <Divider />
+            <p className="site-description-item-profile-p">Company</p>
+            <Row>
+              <Col span={12}>
+                <DescriptionItem
+                  title="Position"
+                  content={selectedUser.position}
+                />
+              </Col>
+              <Col span={12}>
+                <DescriptionItem title="Responsibilities" content="Coding" />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <DescriptionItem title="Department" content="-" />
+              </Col>
+              <Col span={12}>
+                <DescriptionItem title="Supervisor" content={<a>Lin</a>} />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={24}>
+                <DescriptionItem
+                  title="Skills"
+                  content="C / C + +,data structures, software engineering, operating systems, computer networks, databases, compiler theory, computer architecture, Microcomputer Principle and Interface Technology, Computer English, Java, ASP, etc."
+                />
+              </Col>
+            </Row>
+            <Divider />
+            <p className="site-description-item-profile-p">Contacts</p>
+            <Row>
+              <Col span={12}>
+                <DescriptionItem title="Email" content={selectedUser.email} />
+              </Col>
+              <Col span={12}>
+                <DescriptionItem
+                  title="Phone Number"
+                  content={selectedUser.telephoneNumber}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col span={24}>
+                <DescriptionItem
+                  title="Github"
+                  content={<a href="">{`github.com/example`}</a>}
+                />
+              </Col>
+            </Row>
+          </>
+        )}
+      </Drawer>
     </div>
   );
 };

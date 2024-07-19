@@ -16,6 +16,7 @@ import {
   List,
   Upload,
   Image,
+  Badge,
 } from "antd";
 import React, { useState, useEffect } from "react";
 import axiosClient from "@/apis/axiosClient";
@@ -175,9 +176,50 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
     return <Loading loading={true} />;
   }
 
-  return (
-    <>
-      {isMember && !isLoading ? (
+  if (!isLoading && !isMember) {
+    return (
+      <>
+        <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+          <Breadcrumb
+            style={{ cursor: "pointer" }}
+            items={[
+              {
+                onClick: () => {
+                  router.push("/");
+                },
+                title: <HomeOutlined />,
+              },
+              {
+                onClick: () => {
+                  router.push("/");
+                },
+                title: (
+                  <>
+                    <UserOutlined />
+                    <span>Application List</span>
+                  </>
+                ),
+              },
+              {
+                title: "Departments",
+                onClick: () => {
+                  router.push("/departments");
+                },
+              },
+              {
+                title: `${currentDepartment?.departmentName}`,
+              },
+            ]}
+          />
+        </Flex>
+        <NotAuthorized />
+      </>
+    );
+  }
+
+  if (isMember && !isLoading) {
+    return (
+      <>
         <div className={styles.wrapper}>
           <Flex
             align="center"
@@ -233,14 +275,12 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
                     style={{ cursor: "pointer" }}
                     key={item._id}
                     onClick={() =>
-                      router.push(`/departments/projects/${item._id}`)
+                      router.push(
+                        `/departments/${params.departmentId}/${item._id}`
+                      )
                     }
                     actions={[
-                      <IconText
-                        icon={StarOutlined}
-                        text="156"
-                        key="list-vertical-star-o"
-                      />,
+                      <Badge status="processing" text="Processing" />,
                       <IconText
                         icon={LikeOutlined}
                         text="156"
@@ -307,51 +347,9 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
             </Form>
           </Modal>
         </div>
-      ) : (
-        <>
-          {" "}
-          <Flex
-            align="center"
-            justify="space-between"
-            style={{ width: "100%" }}
-          >
-            <Breadcrumb
-              style={{ cursor: "pointer" }}
-              items={[
-                {
-                  onClick: () => {
-                    router.push("/");
-                  },
-                  title: <HomeOutlined />,
-                },
-                {
-                  onClick: () => {
-                    router.push("/");
-                  },
-                  title: (
-                    <>
-                      <UserOutlined />
-                      <span>Application List</span>
-                    </>
-                  ),
-                },
-                {
-                  title: "Departments",
-                  onClick: () => {
-                    router.push("/departments");
-                  },
-                },
-                {
-                  title: `${currentDepartment?.departmentName}`,
-                },
-              ]}
-            />
-          </Flex>
-          <NotAuthorized />
-        </>
-      )}
-    </>
-  );
+      </>
+    );
+  }
 };
 
 export default Projects;

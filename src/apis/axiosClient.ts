@@ -1,6 +1,8 @@
 import { fetchGeoLocation } from "@/utils/geoLocation";
 import axios from "axios";
 
+const tokenChannel = new BroadcastChannel("token_channel");
+
 const axiosClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}/${process.env.NEXT_PUBLIC_VERSION}`,
   headers: {
@@ -23,7 +25,16 @@ axiosClient.interceptors.request.use(
   }
 );
 
-var checkVar = 0;
+let isRefreshing = false;
+let refreshSubscribers = <any>[];
+
+const subscribeTokenRefresh = (cb: any) => {
+  refreshSubscribers.push(cb);
+};
+
+const onRefreshed = (token: any) => {
+  refreshSubscribers.map((cb: any) => cb(token));
+};
 
 axiosClient.interceptors.response.use(
   async (response) => {
@@ -31,14 +42,16 @@ axiosClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    checkVar += 1;
+
     if (
       error.response &&
       error.response.status === 401 &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
-      if (checkVar <= 2) {
+
+      if (!isRefreshing) {
+        isRefreshing = true;
         try {
           const geoLocationDetails = await fetchGeoLocation();
           const data = JSON.stringify(geoLocationDetails);
@@ -46,14 +59,27 @@ axiosClient.interceptors.response.use(
           if (response.status === 200 && response.data) {
             localStorage.setItem("accessToken", response.data.accessToken);
             originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+
+            tokenChannel.postMessage(response.data.accessToken);
+            onRefreshed(response.data.accessToken);
+            isRefreshing = false;
+            refreshSubscribers = [];
+
             return axiosClient(originalRequest);
           }
-        } catch (error) {
-          console.log("Error refreshing token:", error);
+        } catch (refreshError) {
+          isRefreshing = false;
+          console.log("Error refreshing token:", refreshError);
           localStorage.removeItem("accessToken");
-          return Promise.reject(error);
+          return Promise.reject(refreshError);
         }
       }
+      return new Promise((resolve) => {
+        subscribeTokenRefresh((token: any) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          resolve(axiosClient(originalRequest));
+        });
+      });
     }
     if (
       error.response &&
@@ -67,5 +93,15 @@ axiosClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Listen for token updates from other tabs
+tokenChannel.onmessage = (event) => {
+  const token = event.data;
+  if (token) {
+    localStorage.setItem("accessToken", token);
+  } else {
+    localStorage.removeItem("accessToken");
+  }
+};
 
 export default axiosClient;

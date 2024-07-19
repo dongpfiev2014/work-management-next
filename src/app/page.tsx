@@ -11,8 +11,10 @@ import {
   Flex,
   Image,
   List,
+  Progress,
   Row,
   Space,
+  Statistic,
   Tag,
   Tooltip,
   Typography,
@@ -46,6 +48,7 @@ import {
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";
+import type { ProgressProps } from "antd";
 
 interface Task {
   id: string;
@@ -214,11 +217,20 @@ function getRandomColor() {
   return colors[Math.floor(Math.random() * 11)];
 }
 
+const deadline = Date.now() + 1000 * 60 * 60 * 2 + 1000 * 30;
+
+const conicColors: ProgressProps["strokeColor"] = {
+  "0%": "#87d068",
+  "50%": "#ffe58f",
+  "100%": "#ffccc7",
+};
+
 export default function Home() {
   const [winReady, setWinReady] = useState(false);
   const renderToDoList = () => {};
   const router = useRouter();
   const [currentData, setCurrentData] = useState<Columns>(initialData);
+  const [timeLeft, setTimeLeft] = useState(deadline - Date.now());
   useEffect(() => {
     setWinReady(true);
   }, []);
@@ -289,6 +301,8 @@ export default function Home() {
       }
     }
   };
+
+  const percentTimeLeft = (timeLeft / (1000 * 60 * 60 * 2 + 1000 * 30)) * 100;
 
   return (
     <main className={styles.container}>
@@ -504,20 +518,33 @@ export default function Home() {
                                               title={item.title}
                                               description={
                                                 <Space size="small">
-                                                  {item.followers.map(
-                                                    (item, index) => (
-                                                      <Flex
-                                                        gap={5}
-                                                        align="center"
-                                                        key={index}
-                                                      >
-                                                        <Avatar size="small">
-                                                          {item}
-                                                        </Avatar>
-                                                        {item}
-                                                      </Flex>
-                                                    )
-                                                  )}
+                                                  <Avatar.Group>
+                                                    {item.followers.map(
+                                                      (item, index) => (
+                                                        <Flex
+                                                          gap={5}
+                                                          align="center"
+                                                          key={index}
+                                                        >
+                                                          <Tooltip title={item}>
+                                                            <Avatar size="small">
+                                                              {item}
+                                                            </Avatar>
+                                                          </Tooltip>
+                                                        </Flex>
+                                                      )
+                                                    )}
+                                                  </Avatar.Group>
+                                                  <Statistic.Countdown
+                                                    value={deadline}
+                                                  />
+                                                  <Progress
+                                                    percent={93}
+                                                    showInfo={true}
+                                                    type="dashboard"
+                                                    size={50}
+                                                    strokeColor={conicColors}
+                                                  />
                                                 </Space>
                                               }
                                             />
