@@ -39,6 +39,7 @@ import type { UploadFile, UploadProps } from "antd";
 import Loading from "@/app/loading";
 import { FcHighPriority, FcSelfServiceKiosk } from "react-icons/fc";
 import { GiTimeBomb } from "react-icons/gi";
+import { RcFile } from "antd/es/upload";
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -47,12 +48,13 @@ interface Tasks {
   _id: string;
   taskName: string;
   description: string;
-  dueDate: string;
+  dueDate: Date;
   assignedBy: string;
   assignees: string[];
   status: string;
   priority: string;
   completed: boolean;
+  attachments: [];
 }
 
 interface TaskGroups {
@@ -60,7 +62,6 @@ interface TaskGroups {
   description: string;
   tasks: Tasks[];
 }
-[];
 
 interface Project {
   _id: string;
@@ -72,39 +73,22 @@ interface Department {
   departmentName: string;
 }
 
-const initialTaskGroups = [
+const initialTaskGroups: TaskGroups[] = [
   {
-    groupName: "Group 1",
-    description: "Description for Group 1",
+    groupName: "General Task Group",
+    description: "General Task Group",
     tasks: [
-      {
-        key: "1",
-        taskName: "Task 1",
-        description: "",
-        dueDate: "2024-07-20",
-        assignedBy: "User A",
-        assignees: ["User B", "User C"],
-        status: "To Do",
-        priority: "Important",
-        completed: false,
-      },
-    ],
-  },
-  {
-    groupName: "Group 2",
-    description: "Description for Group 2",
-    tasks: [
-      {
-        key: "2",
-        taskName: "Task 2",
-        description: "",
-        dueDate: "2024-07-25",
-        assignedBy: "User D",
-        assignees: ["User E"],
-        status: "In Progress",
-        priority: "Neither",
-        completed: false,
-      },
+      // {
+      //   _id: "1",
+      //   taskName: "Task 1",
+      //   description: "",
+      //   dueDate: "2024-07-20",
+      //   assignedBy: "User A",
+      //   assignees: ["User B", "User C"],
+      //   status: "TO DO",
+      //   priority: "Important",
+      //   completed: true,
+      // },
     ],
   },
 ];
@@ -154,13 +138,14 @@ const ProjectDetail = ({
   const userState = useAppSelector(userInfo);
   const [membersList, setMembersList] = useState<any[]>([]);
   const [taskGroups, setTaskGroups] = useState(initialTaskGroups);
-  const [modalType, setModalType] = useState(null); // 'taskGroup' or 'task'
+  const [modalType, setModalType] = useState<string | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [fileUrls, setFileUrls] = useState<string[]>([]);
 
   useEffect(() => {
     getMembers();
     fetchAllTasks();
-  }, [userState.currentUser, params.departmentId]);
+  }, [userState?.currentUser, params.departmentId]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -185,10 +170,13 @@ const ProjectDetail = ({
       const response = await axiosClient.get(`/tasks/${params.projectId}`);
       if (response.status === 200 && response.data) {
         console.log(response.data);
-        setTasks(response.data.data);
-        setTaskGroups(response.data.taskGroups);
-        setCurrentProject(response.data.project);
-        setCurrentDepartment(response.data.department);
+        if (response.data.data.length === 0) {
+          setTaskGroups(initialTaskGroups);
+        } else {
+          setTaskGroups(response.data.taskGroups);
+          setCurrentProject(response.data.project);
+          setCurrentDepartment(response.data.department);
+        }
       }
     } catch (error) {
       console.log("Failed to fetch all tasks:", error);
@@ -196,22 +184,38 @@ const ProjectDetail = ({
   };
 
   const handleCreateTask = async (values: any) => {
+    const { assignedTo, ...res } = values;
+    const emailRegex = /\((.*?)\)/g;
+    let newAssignedTo = [];
+    let match;
+
+    while ((match = emailRegex.exec(assignedTo)) !== null) {
+      newAssignedTo.push(match[1]);
+    }
+
+    const newTask = {
+      assignedTo: newAssignedTo,
+      attachments: fileUrls,
+      ...res,
+    };
     console.log(values);
+    console.log(newTask);
+
     try {
-      const formData = new FormData();
-      formData.append("taskData", JSON.stringify(values));
-      if (fileList) {
-        formData.append("multiTaskFile", fileList);
-      }
+      // const formData = new FormData();
+      // formData.append("taskData", JSON.stringify(values));
+      // if (fileList && fileList.length > 0) {
+      //   fileList.forEach((file) => {
+      //     if (file.originFileObj) {
+      //       formData.append("multiTaskFile", file.originFileObj);
+      //     }
+      //   });
+      // }
       const response = await axiosClient.post(
-        `/tasks/${params.projectId}}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        `/tasks/${params.projectId}`,
+        newTask
       );
+
       if (response.status === 200 && response.data) {
         const newTaskGroups = taskGroups.map((group) => {
           if (group.groupName === values.taskGroup) {
@@ -231,10 +235,11 @@ const ProjectDetail = ({
   };
 
   const handleCreateTaskGroup = async (values: any) => {
-    console.log(values);
     try {
+      console.log(values);
+      console.log(params.projectId);
       const response = await axiosClient.post(
-        `/taskGroups/${params.projectId}`,
+        `/tasks/taskGroups/${params.projectId}`,
         values
       );
       if (response.status === 200 && response.data) {
@@ -259,23 +264,6 @@ const ProjectDetail = ({
     form.resetFields();
   };
 
-  const props: UploadProps = {
-    name: "file",
-    onChange(info) {
-      const { status } = info.file;
-      if (status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (status === "done") {
-        message.success(`${info.file.name} file uploaded successfully.`);
-        setFileList(info.fileList);
-      } else if (status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
-    multiple: true,
-  };
-
   if (isLoading) {
     return <Loading loading={true} />;
   }
@@ -284,7 +272,7 @@ const ProjectDetail = ({
     const newTaskGroups = taskGroups.map((group) => {
       if (group.groupName === groupName) {
         const newTasks = group.tasks.map((task) => {
-          if (task.key === taskKey) {
+          if (task._id === taskKey) {
             return { ...task, status: value };
           }
           return task;
@@ -300,7 +288,7 @@ const ProjectDetail = ({
     const newTaskGroups = taskGroups.map((group) => {
       if (group.groupName === groupName) {
         const newTasks = group.tasks.map((task) => {
-          if (task.key === taskKey) {
+          if (task._id === taskKey) {
             return { ...task, completed: e.target.checked };
           }
           return task;
@@ -313,7 +301,7 @@ const ProjectDetail = ({
   };
 
   const renderTasksTable = (tasks: Tasks[], groupName: string) => {
-    const columns = [
+    const columns: any = [
       {
         title: "",
         dataIndex: "completed",
@@ -326,7 +314,7 @@ const ProjectDetail = ({
             onClick={() =>
               handleCompletionChange(
                 { target: { checked: !record.completed } },
-                record.key,
+                record._id,
                 groupName
               )
             }
@@ -363,6 +351,19 @@ const ProjectDetail = ({
         title: "Assigned By",
         dataIndex: "assignedBy",
         key: "assignedBy",
+        render: (assignedBy: any) => (
+          <>
+            <Avatar.Group
+              size={28}
+              max={{
+                count: 2,
+                style: { color: "#f56a00", backgroundColor: "#fde3cf" },
+              }}
+            >
+              <Avatar key={assignedBy._id} src={assignedBy.avatar} />
+            </Avatar.Group>
+          </>
+        ),
         width: 120,
       },
       {
@@ -371,11 +372,17 @@ const ProjectDetail = ({
         key: "assignees",
         render: (assignees: any) => (
           <>
-            {assignees.map((assignee: any) => (
-              <Tag color="blue" key={assignee}>
-                {assignee}
-              </Tag>
-            ))}
+            <Avatar.Group
+              size={28}
+              max={{
+                count: 2,
+                style: { color: "#f56a00", backgroundColor: "#fde3cf" },
+              }}
+            >
+              {assignees.map((assignee: any) => (
+                <Avatar key={assignees._id} src={assignees.avatar} />
+              ))}
+            </Avatar.Group>
           </>
         ),
         width: 120,
@@ -388,14 +395,22 @@ const ProjectDetail = ({
           <Select
             value={record.status}
             onChange={(value) =>
-              handleStatusChange(value, record.key, groupName)
+              handleStatusChange(value, record._id, groupName)
             }
             style={{ width: 150 }}
           >
-            <Option value="TO DO">To Do</Option>
-            <Option value="WORK IN PROGRESS">Work In Progress</Option>
-            <Option value="UNDER REVIEW">Under Review</Option>
-            <Option value="COMPLETED">Completed</Option>
+            <Option value="TO DO">
+              <Tag color="#108ee9">To Do</Tag>
+            </Option>
+            <Option value="WORK IN PROGRESS">
+              <Tag color="#f50">Work In Progress</Tag>
+            </Option>
+            <Option value="UNDER REVIEW">
+              <Tag color="#2db7f5">Under Review</Tag>
+            </Option>
+            <Option value="COMPLETED">
+              <Tag color="#87d068">Completed</Tag>
+            </Option>
           </Select>
         ),
         width: 200,
@@ -407,9 +422,68 @@ const ProjectDetail = ({
         columns={columns}
         dataSource={tasks}
         pagination={false}
-        scroll={{ x: 1000 }} // Cố định bảng khi có nhiều dữ liệu
+        scroll={{ x: 1000 }}
       />
     );
+  };
+
+  const handleUploadUrl: UploadProps["customRequest"] = async (
+    options: any
+  ) => {
+    const { file, onSuccess, onError } = options;
+    try {
+      const formData = new FormData();
+      formData.append("multiTaskFile", file);
+
+      // if (fileList && fileList.length > 0) {
+      //   fileList.forEach((file) => {
+      //     if (file.originFileObj) {
+      //       formData.append("multiTaskFile", file.originFileObj);
+      //     }
+      //   });
+      // }
+
+      const response = await axiosClient.post(
+        `/tasks/uploadMultiTaskFile/${params.projectId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(response.data);
+      const fileUrl = response.data.data;
+      setFileUrls((prev) => [...prev, ...fileUrl]);
+      onSuccess(response.data, file);
+      message.success(`${file.name} file uploaded successfully`);
+    } catch (error: any) {
+      console.log(error);
+      onError(error);
+      message.error(`${file.name} file upload failed.`);
+    }
+  };
+
+  const handleUploadChange: UploadProps["onChange"] = (info) => {
+    const { status } = info.file;
+    if (status !== "uploading") {
+      console.log(info.file, info.fileList);
+    }
+    if (status === "done") {
+      setFileList(info.fileList);
+    } else if (status === "error") {
+      message.error(`${info.file.name} file upload failed.`);
+      setFileList(info.fileList.filter((file) => file.status !== "error"));
+    }
+  };
+
+  const props: UploadProps = {
+    name: "file",
+    onChange: handleUploadChange,
+    customRequest: handleUploadUrl,
+    showUploadList: true,
+    multiple: true,
   };
 
   return (
@@ -495,7 +569,7 @@ const ProjectDetail = ({
             {modalType === "taskGroup" ? (
               <>
                 <Form.Item
-                  name="taskGroupName"
+                  name="groupName"
                   label="Task Group Name"
                   rules={[{ required: true, message: "Please enter the name" }]}
                 >
@@ -516,23 +590,17 @@ const ProjectDetail = ({
                 >
                   <Input />
                 </Form.Item>
-                <Form.Item
-                  name="description"
-                  label="Description"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input the description!",
-                    },
-                  ]}
-                >
+                <Form.Item name="description" label="Description">
                   <Input.TextArea />
                 </Form.Item>
                 <Form.Item
                   name="taskGroup"
                   label="Task Group"
                   rules={[
-                    { required: true, message: "Please select a task group!" },
+                    {
+                      required: true,
+                      message: "Please select the task group!",
+                    },
                   ]}
                 >
                   <Select placeholder="Select task group">
@@ -551,25 +619,56 @@ const ProjectDetail = ({
                   ]}
                 >
                   <Select mode="multiple" placeholder="Select assignees">
-                    {/* Add options dynamically */}
-                    <Option value="User A">User A</Option>
-                    <Option value="User B">User B</Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item name="follower" label="Follower">
-                  <Select mode="multiple" placeholder="Select followers">
-                    {/* Add options dynamically */}
-                    <Option value="User A">User A</Option>
-                    <Option value="User B">User B</Option>
+                    {membersList.map((member) => (
+                      <Option
+                        key={member._id}
+                        value={`${member.fullName} (${member.email})`}
+                      >
+                        <Space>
+                          <Avatar size="small" src={member.avatar}>
+                            {member.fullName}
+                          </Avatar>
+                          {member.fullName}
+                        </Space>
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
                 <Form.Item name="priority" label="Priority">
                   <Select placeholder="Select priority">
                     {/* Add options dynamically */}
-                    <Option value="Important">Important</Option>
-                    <Option value="Urgent">Urgent</Option>
-                    <Option value="Critical">Critical</Option>
-                    <Option value="Neither">Neither</Option>
+                    <Option value="Important">
+                      <Tag
+                        icon={getTagIcon("Important")}
+                        color={`${getTagColor("Important")}`}
+                      >
+                        {"Important"}
+                      </Tag>
+                    </Option>
+                    <Option value="Urgent">
+                      <Tag
+                        icon={getTagIcon("Urgent")}
+                        color={`${getTagColor("Urgent")}`}
+                      >
+                        {"Urgent"}
+                      </Tag>
+                    </Option>
+                    <Option value="Critical">
+                      <Tag
+                        icon={getTagIcon("Critical")}
+                        color={`${getTagColor("Critical")}`}
+                      >
+                        {"Critical"}
+                      </Tag>
+                    </Option>
+                    <Option value="Neither">
+                      <Tag
+                        icon={getTagIcon("Neither")}
+                        color={`${getTagColor("Neither")}`}
+                      >
+                        {"Neither"}
+                      </Tag>
+                    </Option>
                   </Select>
                 </Form.Item>
                 <Form.Item
@@ -582,13 +681,8 @@ const ProjectDetail = ({
                   <DatePicker />
                 </Form.Item>
 
-                <Form.Item name="attachment" label="Attachment">
-                  <Upload
-                    {...props}
-                    showUploadList={true}
-                    fileList={fileList}
-                    multiple
-                  >
+                <Form.Item label="Attachment">
+                  <Upload {...props}>
                     <Button icon={<UploadOutlined />}>Upload</Button>
                   </Upload>
                 </Form.Item>
