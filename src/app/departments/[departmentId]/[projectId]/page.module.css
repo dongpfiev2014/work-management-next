@@ -1,0 +1,25 @@
+.wrapper {
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cardContainer {
+  /* gap: 16px;
+    padding: 5px;
+    width: 100%; */
+}
+
+.completedCircle {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: lightgray;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.completed {
+  background-color: rgb(46, 223, 46);
+}

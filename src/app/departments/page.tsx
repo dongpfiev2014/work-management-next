@@ -176,10 +176,10 @@ const Departments: React.FC = () => {
           >
             {/* <Typography.Text>{department.description}</Typography.Text> */}
             <Flex vertical gap={5}>
-              <Flex gap={10} align="center" justify="space-between">
+              <Flex gap={10} align="flex-start" justify="space-between">
                 <p>Owners:</p>
                 <Avatar.Group
-                  size={35}
+                  size={32}
                   max={{
                     count: 2,
                     style: { color: "#f56a00", backgroundColor: "#fde3cf" },
@@ -195,10 +195,10 @@ const Departments: React.FC = () => {
                   })}
                 </Avatar.Group>
               </Flex>
-              <Flex gap={10} align="center" justify="space-between">
+              <Flex gap={10} align="flex-start" justify="space-between">
                 <p>Group Accesses:</p>
                 <Avatar.Group
-                  size={35}
+                  size={32}
                   max={{
                     count: 2,
                     style: { color: "#f56a00", backgroundColor: "#fde3cf" },
