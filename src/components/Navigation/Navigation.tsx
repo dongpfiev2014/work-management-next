@@ -57,11 +57,8 @@ const Navigation: React.FC = () => {
   const [form2] = useForm();
   const [tabKey, setTabKey] = useState("1");
   const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
-  console.log(companiesState);
 
-  const onClick: MenuProps["onClick"] = (e) => {
-    console.log("click ", e);
-  };
+  const onClick: MenuProps["onClick"] = (e) => {};
 
   const showModal = () => {
     setOpen(true);

@@ -27,6 +27,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const fetchUserInfo = async () => {
       if (accessToken && accessToken !== "undefined" && accessToken !== null) {
         // Gọi action fetchUser với accessToken
+
         const userResponse = await dispatch(fetchUser());
 
         if (userResponse && userResponse.payload && userResponse.payload.data) {

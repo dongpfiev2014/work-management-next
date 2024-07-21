@@ -40,6 +40,7 @@ import Loading from "@/app/loading";
 import { FcHighPriority, FcSelfServiceKiosk } from "react-icons/fc";
 import { GiTimeBomb } from "react-icons/gi";
 import { RcFile } from "antd/es/upload";
+import moment from "moment";
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -84,7 +85,7 @@ const initialTaskGroups: TaskGroups[] = [
       //   description: "",
       //   dueDate: "2024-07-20",
       //   assignedBy: "User A",
-      //   assignees: ["User B", "User C"],
+      //   assignedTo: ["User B", "User C"],
       //   status: "TO DO",
       //   priority: "Important",
       //   completed: true,
@@ -121,6 +122,11 @@ const getTagIcon = (priority: string) => {
   }
 };
 
+const disablePastDates = (current: any) => {
+  // Can not select days before today
+  return current && current < moment().endOf("day");
+};
+
 const ProjectDetail = ({
   params,
 }: {
@@ -145,7 +151,7 @@ const ProjectDetail = ({
   useEffect(() => {
     getMembers();
     fetchAllTasks();
-  }, [userState?.currentUser, params.departmentId]);
+  }, [userState?.currentUser, params.projectId]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -167,13 +173,17 @@ const ProjectDetail = ({
 
   const fetchAllTasks = async () => {
     try {
-      const response = await axiosClient.get(`/tasks/${params.projectId}`);
+      const response = await axiosClient.get(
+        `/tasks/${params.departmentId}/${params.projectId}`
+      );
       if (response.status === 200 && response.data) {
         console.log(response.data);
         if (response.data.data.length === 0) {
           setTaskGroups(initialTaskGroups);
+          setCurrentProject(response.data.project);
+          setCurrentDepartment(response.data.department);
         } else {
-          setTaskGroups(response.data.taskGroups);
+          setTaskGroups(response.data.data);
           setCurrentProject(response.data.project);
           setCurrentDepartment(response.data.department);
         }
@@ -212,14 +222,15 @@ const ProjectDetail = ({
       //   });
       // }
       const response = await axiosClient.post(
-        `/tasks/${params.projectId}`,
+        `/tasks/${params.departmentId}/${params.projectId}`,
         newTask
       );
 
       if (response.status === 200 && response.data) {
+        const responseTask = response.data.data;
         const newTaskGroups = taskGroups.map((group) => {
-          if (group.groupName === values.taskGroup) {
-            return { ...group, tasks: [...group.tasks, values] };
+          if (group.groupName === responseTask.taskGroup) {
+            return { ...group, tasks: [...group.tasks, responseTask] };
           }
           return group;
         });
@@ -346,6 +357,9 @@ const ProjectDetail = ({
         dataIndex: "dueDate",
         key: "dueDate",
         width: 100,
+        render: (dueDate: any) => (
+          <span>{moment(dueDate).format("DD/MM/YYYY")}</span>
+        ),
       },
       {
         title: "Assigned By",
@@ -360,7 +374,7 @@ const ProjectDetail = ({
                 style: { color: "#f56a00", backgroundColor: "#fde3cf" },
               }}
             >
-              <Avatar key={assignedBy._id} src={assignedBy.avatar} />
+              <Avatar src={assignedBy.avatar} />
             </Avatar.Group>
           </>
         ),
@@ -368,8 +382,8 @@ const ProjectDetail = ({
       },
       {
         title: "Assignee(s)",
-        dataIndex: "assignees",
-        key: "assignees",
+        dataIndex: "assignedTo",
+        key: "assignedTo",
         render: (assignees: any) => (
           <>
             <Avatar.Group
@@ -379,8 +393,8 @@ const ProjectDetail = ({
                 style: { color: "#f56a00", backgroundColor: "#fde3cf" },
               }}
             >
-              {assignees.map((assignee: any) => (
-                <Avatar key={assignees._id} src={assignees.avatar} />
+              {assignees.map((item: any) => (
+                <Avatar key={item._id} src={item.avatar} />
               ))}
             </Avatar.Group>
           </>
@@ -678,7 +692,7 @@ const ProjectDetail = ({
                     { required: true, message: "Please select the due date!" },
                   ]}
                 >
-                  <DatePicker />
+                  <DatePicker disabledDate={disablePastDates} />
                 </Form.Item>
 
                 <Form.Item label="Attachment">

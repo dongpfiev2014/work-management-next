@@ -49,14 +49,17 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import type { ProgressProps } from "antd";
+import axiosClient from "@/apis/axiosClient";
 
 interface Task {
   id: string;
   title: string;
   content: string;
   priority: string;
-  followers: string[];
-  department: string;
+  followers: [];
+  department: {
+    departmentName: string;
+  };
 }
 
 interface Column {
@@ -79,32 +82,32 @@ const initialData: Columns = {
         title: "Title 1",
         content: "Content 1",
         priority: "Urgent",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "2",
         title: "Title 2",
         content: "Content 2",
         priority: "Important",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "3",
         title: "Title 3",
         content: "Content 3",
         priority: "Critical",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "4",
         title: "Title 4",
         content: "Content 4",
         priority: "Neither",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
     ],
   },
@@ -117,24 +120,24 @@ const initialData: Columns = {
         title: "Title 1",
         content: "Content 1",
         priority: "Urgent",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "6",
         title: "Title 2",
         content: "Content 2",
         priority: "Important",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "7",
         title: "Title 3",
         content: "Content 3",
         priority: "Critical",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
     ],
   },
@@ -147,32 +150,32 @@ const initialData: Columns = {
         title: "Title 1",
         content: "Content 1",
         priority: "Urgent",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "9",
         title: "Title 2",
         content: "Content 2",
         priority: "Important",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "10",
         title: "Title 3",
         content: "Content 3",
         priority: "Critical",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "11",
         title: "Title 4",
         content: "Content 4",
         priority: "Neither",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
     ],
   },
@@ -185,16 +188,16 @@ const initialData: Columns = {
         title: "Title 1",
         content: "Content 1",
         priority: "Urgent",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
       {
         id: "13",
         title: "Title 2",
         content: "Content 2",
         priority: "Important",
-        followers: ["John", "Davis"],
-        department: "FrontEnd Development",
+        followers: [],
+        department: { departmentName: "FrontEnd Development" },
       },
     ],
   },
@@ -213,6 +216,7 @@ const colors = [
   "geekblue",
   "purple",
 ];
+
 function getRandomColor() {
   return colors[Math.floor(Math.random() * 11)];
 }
@@ -231,9 +235,38 @@ export default function Home() {
   const router = useRouter();
   const [currentData, setCurrentData] = useState<Columns>(initialData);
   const [timeLeft, setTimeLeft] = useState(deadline - Date.now());
+
   useEffect(() => {
     setWinReady(true);
+    fetchPersonalTasks();
   }, []);
+
+  const fetchPersonalTasks = async () => {
+    try {
+      const response = await axiosClient.get(
+        `/tasks/personalTask?page=${1}&limit=${20}`
+      );
+      if (response.status === 200 && response.data) {
+        console.log(response.data);
+        setCurrentData(response.data.data);
+      }
+    } catch (err) {
+      console.log("Failed to fetch personal tasks", err);
+    }
+  };
+
+  const updatePersonalTasks = async (taskId: any, newStatus: any) => {
+    try {
+      const response = await axiosClient.put(`/tasks/${taskId}`, {
+        status: newStatus,
+      });
+      if (response.status === 200) {
+        console.log("Task updated successfully");
+      }
+    } catch (err) {
+      console.log("Failed to update task", err);
+    }
+  };
 
   const getTagColor = (priority: string) => {
     switch (priority) {
@@ -263,7 +296,7 @@ export default function Home() {
     }
   };
 
-  const onDragEnd = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
     console.log(source, destination);
     if (destination) {
@@ -298,6 +331,8 @@ export default function Home() {
             items: destinationItems,
           },
         });
+
+        await updatePersonalTasks(removed.id, destination.droppableId);
       }
     }
   };
@@ -468,7 +503,10 @@ export default function Home() {
                                                   {item.priority}
                                                 </Tag>
                                                 <Tag color={getRandomColor()}>
-                                                  {item.department}
+                                                  {
+                                                    item.department
+                                                      .departmentName
+                                                  }
                                                 </Tag>
                                               </Flex>
                                             }
@@ -520,15 +558,27 @@ export default function Home() {
                                                 <Space size="small">
                                                   <Avatar.Group>
                                                     {item.followers.map(
-                                                      (item, index) => (
+                                                      (
+                                                        element: any,
+                                                        eindex
+                                                      ) => (
                                                         <Flex
                                                           gap={5}
                                                           align="center"
-                                                          key={index}
+                                                          key={eindex}
                                                         >
-                                                          <Tooltip title={item}>
-                                                            <Avatar size="small">
-                                                              {item}
+                                                          <Tooltip
+                                                            title={
+                                                              element.fullName
+                                                            }
+                                                          >
+                                                            <Avatar
+                                                              size="small"
+                                                              src={
+                                                                element.avatar
+                                                              }
+                                                            >
+                                                              {element.fullName}
                                                             </Avatar>
                                                           </Tooltip>
                                                         </Flex>
