@@ -34,7 +34,10 @@ interface Projects {
   _id: string;
   projectName: string;
   description: string;
-  owner: string;
+  owner: {
+    fullName: string;
+    avatar: string;
+  };
   departmentId: string;
   organizationId: string;
   tasks: [];
@@ -307,10 +310,10 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
                       title={item.projectName}
                       description={
                         <Typography.Text type="secondary">{`Created by ${
-                          userState.currentUser?.fullName
+                          item.owner.fullName
                         } on ${changeDate(item.createdAt)}`}</Typography.Text>
                       }
-                      avatar={<Avatar src={userState.currentUser?.avatar} />}
+                      avatar={<Avatar src={item.owner.avatar} />}
                     />
                     {item.description}
                   </List.Item>

@@ -121,7 +121,9 @@ const MainHeader: React.FC = () => {
       dispatch(signout());
     }
   };
-  const handleSearch = () => {};
+  const handleSearch = (e: any) => {
+    router.push(`/search?q=${e.target.value}`);
+  };
 
   return (
     <>

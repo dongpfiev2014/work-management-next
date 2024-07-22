@@ -371,16 +371,16 @@ const Navigation: React.FC = () => {
             } else router.push(`/not-authorized-guest`);
           },
         },
-        {
-          key: "report",
-          label: "Report",
-          icon: <FcRatings />,
-          onClick: () => {
-            if (companiesState.companies?.length) {
-              router.push(`/report`);
-            } else router.push(`/not-authorized-guest`);
-          },
-        },
+        // {
+        //   key: "report",
+        //   label: "Report",
+        //   icon: <FcRatings />,
+        //   onClick: () => {
+        //     if (companiesState.companies?.length) {
+        //       router.push(`/report`);
+        //     } else router.push(`/not-authorized-guest`);
+        //   },
+        // },
       ],
     },
     {

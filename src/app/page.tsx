@@ -11,6 +11,7 @@ import {
   Flex,
   Image,
   List,
+  Popover,
   Progress,
   Row,
   Space,
@@ -50,19 +51,25 @@ import {
 } from "react-beautiful-dnd";
 import type { ProgressProps } from "antd";
 import axiosClient from "@/apis/axiosClient";
+import TaskDetail from "@/components/TaskDetail";
 
 interface Task {
-  id: string;
-  title: string;
-  content: string;
-  priority: string;
-  followers: any[];
-  department: {
+  _id: string;
+  departmentId: {
     departmentName: string;
   };
   projectId: {
     projectImage: string;
   };
+  taskName: string;
+  description: string;
+  dueDate: Date | string;
+  assignedBy: string;
+  assignedTo: any[];
+  status: string;
+  priority: string;
+  completed: boolean;
+  attachments: [];
 }
 
 interface Column {
@@ -81,11 +88,11 @@ const initialData: Columns = {
     color: "#108ee9",
     items: [
       {
-        id: "1",
-        title: "Title 1",
-        content: "Content 1",
+        _id: "1",
+        taskName: "Title 1",
+        description: "Content 1",
         priority: "Urgent",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -93,15 +100,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "2",
-        title: "Title 2",
-        content: "Content 2",
+        _id: "2",
+        taskName: "Title 2",
+        description: "Content 2",
         priority: "Important",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -109,15 +121,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "3",
-        title: "Title 3",
-        content: "Content 3",
+        _id: "3",
+        taskName: "Title 3",
+        description: "Content 3",
         priority: "Critical",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -125,15 +142,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "4",
-        title: "Title 4",
-        content: "Content 4",
+        _id: "4",
+        taskName: "Title 4",
+        description: "Content 4",
         priority: "Neither",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -141,8 +163,13 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
     ],
   },
@@ -151,11 +178,11 @@ const initialData: Columns = {
     color: "#f50",
     items: [
       {
-        id: "5",
-        title: "Title 1",
-        content: "Content 1",
+        _id: "5",
+        taskName: "Title 1",
+        description: "Content 1",
         priority: "Urgent",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -163,15 +190,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "6",
-        title: "Title 2",
-        content: "Content 2",
+        _id: "6",
+        taskName: "Title 2",
+        description: "Content 2",
         priority: "Important",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -179,15 +211,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "7",
-        title: "Title 3",
-        content: "Content 3",
+        _id: "7",
+        taskName: "Title 3",
+        description: "Content 3",
         priority: "Critical",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -195,8 +232,13 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
     ],
   },
@@ -205,11 +247,11 @@ const initialData: Columns = {
     color: "#2db7f5",
     items: [
       {
-        id: "8",
-        title: "Title 1",
-        content: "Content 1",
+        _id: "8",
+        taskName: "Title 1",
+        description: "Content 1",
         priority: "Urgent",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -217,15 +259,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "9",
-        title: "Title 2",
-        content: "Content 2",
+        _id: "9",
+        taskName: "Title 2",
+        description: "Content 2",
         priority: "Important",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -233,15 +280,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "10",
-        title: "Title 3",
-        content: "Content 3",
+        _id: "10",
+        taskName: "Title 3",
+        description: "Content 3",
         priority: "Critical",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -249,15 +301,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "11",
-        title: "Title 4",
-        content: "Content 4",
+        _id: "11",
+        taskName: "Title 4",
+        description: "Content 4",
         priority: "Neither",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -265,8 +322,13 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
     ],
   },
@@ -275,11 +337,11 @@ const initialData: Columns = {
     color: "#87d068",
     items: [
       {
-        id: "12",
-        title: "Title 1",
-        content: "Content 1",
+        _id: "12",
+        taskName: "Title 1",
+        description: "Content 1",
         priority: "Urgent",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -287,15 +349,20 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
       {
-        id: "13",
-        title: "Title 2",
-        content: "Content 2",
+        _id: "13",
+        taskName: "Title 2",
+        description: "Content 2",
         priority: "Important",
-        followers: [
+        assignedTo: [
           {
             fullName: "John",
           },
@@ -303,8 +370,13 @@ const initialData: Columns = {
             fullName: "Sarah",
           },
         ],
-        department: { departmentName: "FrontEnd Development" },
+        departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
+        dueDate: "",
+        status: "",
+        assignedBy: "",
+        completed: false,
+        attachments: [],
       },
     ],
   },
@@ -451,7 +523,7 @@ export default function Home() {
           },
         });
 
-        await updatePersonalTasks(removed.id, destination.droppableId);
+        await updatePersonalTasks(removed._id, destination.droppableId);
       }
     }
   };
@@ -584,8 +656,8 @@ export default function Home() {
                                 dataSource={column.items}
                                 renderItem={(item, index) => (
                                   <Draggable
-                                    key={item.id}
-                                    draggableId={item.id}
+                                    key={item._id}
+                                    draggableId={item._id}
                                     index={index}
                                   >
                                     {(provided, snapshot) => (
@@ -603,136 +675,147 @@ export default function Home() {
                                           ...provided.draggableProps.style,
                                         }}
                                       >
-                                        <List.Item
-                                          style={{
-                                            cursor: "pointer",
-                                          }}
+                                        <Popover
+                                          content={<TaskDetail task={item} />}
+                                          trigger="click"
+                                          placement="bottom"
+                                          style={{ width: "100%" }}
                                         >
-                                          <Card
-                                            title={
-                                              <Flex>
-                                                <Tag
-                                                  icon={getTagIcon(
-                                                    item.priority
-                                                  )}
-                                                  color={`${getTagColor(
-                                                    item.priority
-                                                  )}`}
-                                                >
-                                                  {item.priority}
-                                                </Tag>
-                                                <Tag color={getRandomColor()}>
-                                                  {
-                                                    item.department
-                                                      .departmentName
-                                                  }
-                                                </Tag>
-                                              </Flex>
-                                            }
-                                            className={styles.Card}
-                                            hoverable
-                                            cover={
-                                              <Image
-                                                alt="example"
-                                                src={
-                                                  allColumnsEmpty
-                                                    ? "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                                                    : item.projectId
-                                                        .projectImage
-                                                }
-                                                preview={false}
-                                                style={{
-                                                  width: "100%",
-                                                  height: "80px",
-                                                  borderRadius: "10px",
-                                                  objectFit: "cover",
-                                                  overflow: "hidden",
-                                                }}
-                                              />
-                                            }
-                                            actions={[
-                                              <>
-                                                <Flex
-                                                  gap={14}
-                                                  style={{
-                                                    marginLeft: "25px",
-                                                  }}
-                                                >
-                                                  <Flex gap={4}>
-                                                    {item.followers.length}
-                                                    <StarOutlined />
-                                                  </Flex>
-                                                  <Flex gap={4}>
-                                                    {item.followers.length}
-                                                    <LikeOutlined />
-                                                  </Flex>
-                                                  <Flex gap={4}>
-                                                    {item.followers.length}
-                                                    <MessageOutlined />
-                                                  </Flex>
-                                                </Flex>
-                                              </>,
-                                            ]}
-                                            bordered={false}
+                                          <List.Item
+                                            style={{
+                                              cursor: "pointer",
+                                            }}
                                           >
-                                            <Card.Meta
+                                            <Card
                                               title={
-                                                <Typography.Title
-                                                  style={{ fontSize: "14px" }}
-                                                >
-                                                  {item.title}
-                                                </Typography.Title>
+                                                <Flex>
+                                                  <Tag
+                                                    icon={getTagIcon(
+                                                      item.priority
+                                                    )}
+                                                    color={`${getTagColor(
+                                                      item.priority
+                                                    )}`}
+                                                  >
+                                                    {item.priority}
+                                                  </Tag>
+                                                  <Tag color={getRandomColor()}>
+                                                    {
+                                                      item.departmentId
+                                                        .departmentName
+                                                    }
+                                                  </Tag>
+                                                </Flex>
                                               }
-                                              description={
-                                                <Space size="small">
-                                                  <Avatar.Group>
-                                                    {item.followers.map(
-                                                      (
-                                                        element: any,
-                                                        eindex
-                                                      ) => (
-                                                        <Flex
-                                                          gap={5}
-                                                          align="center"
-                                                          key={eindex}
-                                                        >
-                                                          <Tooltip
-                                                            title={
-                                                              element.fullName
-                                                            }
+                                              className={styles.Card}
+                                              hoverable
+                                              cover={
+                                                <Image
+                                                  alt="example"
+                                                  src={
+                                                    allColumnsEmpty
+                                                      ? "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+                                                      : item.projectId
+                                                          .projectImage
+                                                  }
+                                                  preview={false}
+                                                  style={{
+                                                    width: "100%",
+                                                    height: "80px",
+                                                    borderRadius: "10px",
+                                                    objectFit: "cover",
+                                                    overflow: "hidden",
+                                                  }}
+                                                />
+                                              }
+                                              actions={[
+                                                <>
+                                                  <Flex
+                                                    gap={14}
+                                                    style={{
+                                                      marginLeft: "25px",
+                                                    }}
+                                                  >
+                                                    <Flex gap={4}>
+                                                      {item.assignedTo.length}
+                                                      <StarOutlined />
+                                                    </Flex>
+                                                    <Flex gap={4}>
+                                                      {item.assignedTo.length}
+                                                      <LikeOutlined />
+                                                    </Flex>
+                                                    <Flex gap={4}>
+                                                      {item.assignedTo.length}
+                                                      <MessageOutlined />
+                                                    </Flex>
+                                                  </Flex>
+                                                </>,
+                                              ]}
+                                              bordered={false}
+                                            >
+                                              <Card.Meta
+                                                title={
+                                                  <Typography.Title
+                                                    style={{ fontSize: "14px" }}
+                                                  >
+                                                    {item.taskName}
+                                                  </Typography.Title>
+                                                }
+                                                description={
+                                                  <Space size="small">
+                                                    <Avatar.Group>
+                                                      {item.assignedTo.map(
+                                                        (
+                                                          element: any,
+                                                          eindex
+                                                        ) => (
+                                                          <Flex
+                                                            gap={5}
+                                                            align="center"
+                                                            key={eindex}
                                                           >
-                                                            <Avatar
-                                                              size="small"
-                                                              src={
-                                                                element.avatar
+                                                            <Tooltip
+                                                              title={
+                                                                element.fullName
                                                               }
                                                             >
-                                                              {element.fullName}
-                                                            </Avatar>
-                                                          </Tooltip>
-                                                        </Flex>
-                                                      )
-                                                    )}
-                                                  </Avatar.Group>
-                                                  <Statistic.Countdown
-                                                    className="small-countdown"
-                                                    value={deadline}
-                                                    onFinish={() =>
-                                                      setProgressColor("red")
-                                                    }
-                                                  />
-                                                  <Progress
-                                                    percent={93}
-                                                    showInfo={true}
-                                                    type="dashboard"
-                                                    size={36}
-                                                    strokeColor={progressColor}
-                                                  />
-                                                </Space>
-                                              }
-                                            />
-                                          </Card>
-                                        </List.Item>
+                                                              <Avatar
+                                                                size="small"
+                                                                src={
+                                                                  element.avatar
+                                                                }
+                                                              >
+                                                                {
+                                                                  element.fullName
+                                                                }
+                                                              </Avatar>
+                                                            </Tooltip>
+                                                          </Flex>
+                                                        )
+                                                      )}
+                                                    </Avatar.Group>
+                                                    <Statistic.Countdown
+                                                      className="small-countdown"
+                                                      value={deadline}
+                                                      onFinish={() =>
+                                                        setProgressColor("red")
+                                                      }
+                                                    />
+                                                    <Progress
+                                                      percent={93}
+                                                      showInfo={true}
+                                                      type="dashboard"
+                                                      size={36}
+                                                      strokeColor={
+                                                        progressColor
+                                                      }
+                                                    />
+                                                  </Space>
+                                                }
+                                              />
+                                            </Card>
+                                          </List.Item>
+                                        </Popover>
                                       </div>
                                     )}
                                   </Draggable>

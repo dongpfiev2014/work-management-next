@@ -42,6 +42,7 @@ import { FcHighPriority, FcSelfServiceKiosk } from "react-icons/fc";
 import { GiTimeBomb } from "react-icons/gi";
 import { RcFile } from "antd/es/upload";
 import moment from "moment";
+import TaskDetail from "@/components/TaskDetail";
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -50,9 +51,9 @@ interface Tasks {
   _id: string;
   taskName: string;
   description: string;
-  dueDate: Date;
+  dueDate: Date | string;
   assignedBy: string;
-  assignees: string[];
+  assignedTo: any[];
   status: string;
   priority: string;
   completed: boolean;
@@ -369,29 +370,25 @@ const ProjectDetail = ({
         dataIndex: "taskName",
         key: "taskName",
         fixed: "left",
-        render: (text: any, record: any) => (
-          <Flex vertical gap={0}>
-            <Popover
-              content={
-                <>
-                  <h1>{record._id}</h1>
-                  <h1>{record.taskName}</h1>
-                </>
-              }
-              trigger="click"
-              placement="right"
-            >
+        render: (text: any, record: Tasks) => (
+          <Popover
+            content={<TaskDetail task={record} />}
+            trigger="click"
+            placement="bottom"
+            style={{ width: "100%" }}
+          >
+            <Flex vertical gap={0} style={{ cursor: "pointer" }}>
               <div>{record.taskName}</div>
-            </Popover>
-            <div>
-              <Tag
-                icon={getTagIcon(record.priority)}
-                color={`${getTagColor(record.priority)}`}
-              >
-                {record.priority}
-              </Tag>
-            </div>
-          </Flex>
+              <div>
+                <Tag
+                  icon={getTagIcon(record.priority)}
+                  color={`${getTagColor(record.priority)}`}
+                >
+                  {record.priority}
+                </Tag>
+              </div>
+            </Flex>
+          </Popover>
         ),
       },
       {
