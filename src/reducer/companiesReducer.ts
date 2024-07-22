@@ -45,6 +45,7 @@ const companiesSlice = createSlice({
         state.message = "Fetching companies failed";
         state.error = action.payload as string;
         state.success = false;
+        state.companies = [];
       });
   },
 });

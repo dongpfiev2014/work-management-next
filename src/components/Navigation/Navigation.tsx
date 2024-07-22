@@ -57,6 +57,15 @@ const Navigation: React.FC = () => {
   const [form2] = useForm();
   const [tabKey, setTabKey] = useState("1");
   const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
+  const listOfDepartment = (index: number) => {
+    const departmentList = companiesState?.companies?.[0]?.department;
+    if (departmentList && departmentList.length > index) {
+      return departmentList[index];
+    }
+    return null;
+  };
+
+  console.log(companiesState);
 
   const onClick: MenuProps["onClick"] = (e) => {};
 
@@ -335,7 +344,6 @@ const Navigation: React.FC = () => {
       key: "general",
       label: "General",
       type: "group",
-
       children: [
         {
           key: "allTasks",
@@ -347,15 +355,32 @@ const Navigation: React.FC = () => {
           key: "members",
           label: "Members",
           icon: <FcAssistant />,
-          onClick: () => router.push("/members"),
+          onClick: () => {
+            if (companiesState.companies?.length) {
+              router.push(`/members`);
+            } else router.push(`/not-authorized-guest`);
+          },
         },
         {
           key: "departments",
           label: "Departments",
           icon: <FcDepartment />,
-          onClick: () => router.push("/departments"),
+          onClick: () => {
+            if (companiesState.companies?.length) {
+              router.push(`/departments`);
+            } else router.push(`/not-authorized-guest`);
+          },
         },
-        { key: "report", label: "Report", icon: <FcRatings /> },
+        {
+          key: "report",
+          label: "Report",
+          icon: <FcRatings />,
+          onClick: () => {
+            if (companiesState.companies?.length) {
+              router.push(`/report`);
+            } else router.push(`/not-authorized-guest`);
+          },
+        },
       ],
     },
     {
@@ -363,63 +388,104 @@ const Navigation: React.FC = () => {
       label: "Team Boards",
       type: "group",
       children: [
-        { key: "generalTeam", label: "General", icon: <FcParallelTasks /> },
-        { key: "uiux", label: "UI/UX Design", icon: <FcAssistant /> },
+        {
+          key: "generalTeam",
+          label: listOfDepartment(0)
+            ? listOfDepartment(0).departmentName
+            : "General",
+          icon: <FcParallelTasks />,
+          onClick: () => {
+            if (listOfDepartment(0)) {
+              router.push(`/departments/${listOfDepartment(0)._id}`);
+            } else router.push(`/not-authorized-guest`);
+          },
+        },
+        {
+          key: "uiux",
+          label: listOfDepartment(1)
+            ? listOfDepartment(1).departmentName
+            : "UI/UX Design",
+          icon: <FcAssistant />,
+          onClick: () => {
+            if (listOfDepartment(0)) {
+              router.push(`/departments/${listOfDepartment(1)._id}`);
+            } else router.push(`/not-authorized-guest`);
+          },
+        },
         {
           key: "webDevelopment",
-          label: "Web Development",
+          label: listOfDepartment(2)
+            ? listOfDepartment(2).departmentName
+            : "Web Development",
           icon: <FcDepartment />,
+          onClick: () => {
+            if (listOfDepartment(0)) {
+              router.push(`/departments/${listOfDepartment(2)._id}`);
+            } else router.push(`/not-authorized-guest`);
+          },
         },
         {
           key: "mobileDevelopment",
-          label: "Mobile Development",
+          label: listOfDepartment(3)
+            ? listOfDepartment(3).departmentName
+            : "Mobile Development",
           icon: <FcRatings />,
+          onClick: () => {
+            if (listOfDepartment(0)) {
+              router.push(`/departments/${listOfDepartment(3)._id}`);
+            } else router.push(`/not-authorized-guest`);
+          },
         },
       ],
     },
-    {
-      key: "appearance",
-      label: "Appearance",
-      type: "group",
-      children: [
-        { key: "template", label: "Template", icon: <CgTemplate /> },
-        { key: "archive", label: "Archive", icon: <BsArchive /> },
-        {
-          key: "trash",
-          label: "Trash",
-          icon: <GrTrash />,
-        },
-        {
-          key: "settings",
-          label: "Settings",
-          icon: <VscSettingsGear />,
-        },
-      ],
-    },
+    // {
+    //   key: "appearance",
+    //   label: "Appearance",
+    //   type: "group",
+    //   children: [
+    //     { key: "template", label: "Template", icon: <CgTemplate /> },
+    //     { key: "archive", label: "Archive", icon: <BsArchive /> },
+    //     {
+    //       key: "trash",
+    //       label: "Trash",
+    //       icon: <GrTrash />,
+    //     },
+    //     {
+    //       key: "settings",
+    //       label: "Settings",
+    //       icon: <VscSettingsGear />,
+    //     },
+    //   ],
+    // },
     {
       key: "colorLegend",
       label: "Color Legend",
       type: "group",
+
       children: [
         {
           key: "important",
           label: <Tag color="orange">Important</Tag>,
           icon: <FcHighPriority />,
+          style: { cursor: "default" },
         },
         {
           key: "urgent",
           label: <Tag color="magenta">Urgent</Tag>,
           icon: <FcExpired />,
+          style: { cursor: "default" },
         },
         {
           key: "Critical",
           label: <Tag color="purple">Critical</Tag>,
           icon: <GiTimeBomb />,
+          style: { cursor: "default" },
         },
         {
           key: "neither",
           label: <Tag color="cyan">Neither</Tag>,
           icon: <FcSelfServiceKiosk />,
+          style: { cursor: "default" },
         },
       ],
     },

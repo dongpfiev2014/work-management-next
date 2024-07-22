@@ -25,6 +25,7 @@ import Link from "next/link";
 import { User } from "@/types";
 import { updateProfile } from "@/reducer/authReducer";
 import dayjs from "dayjs";
+import Loading from "../loading";
 
 const page: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
@@ -37,6 +38,10 @@ const page: React.FC = () => {
   );
   const [avatarFile, setAvatarFile] = useState<File | undefined>(undefined);
   const [api, contextHolder] = notification.useNotification();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (companies.companies && companies.companies.length > 0) {
@@ -84,6 +89,10 @@ const page: React.FC = () => {
       pauseOnHover,
     });
   };
+
+  if (!isClient) {
+    return <Loading loading={true} />;
+  }
 
   return (
     <>
@@ -143,9 +152,10 @@ const page: React.FC = () => {
                         avatar: userState.currentUser?.avatar,
                         fullName: userState.currentUser?.fullName,
                         email: userState.currentUser?.email,
-                        companyId: companies.companies?.[0]._id,
-                        companyName: companies.companies?.[0].organizationName,
-                        jobTitle: userState.currentUser.position,
+                        companyId: companies.companies?.[0]?._id || " ",
+                        companyName:
+                          companies.companies?.[0]?.organizationName || " ",
+                        jobTitle: userState.currentUser?.position || " ",
                         address: userState.currentUser?.address,
                         telephoneNumber: userState.currentUser?.telephoneNumber,
                         gender: userState.currentUser?.gender,
@@ -346,7 +356,9 @@ const page: React.FC = () => {
             </Col>
           </Row>
         </Layout>
-      ) : null}
+      ) : (
+        <Loading loading={true} />
+      )}
     </>
   );
 };

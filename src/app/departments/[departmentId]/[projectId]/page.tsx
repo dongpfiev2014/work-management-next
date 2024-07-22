@@ -22,6 +22,7 @@ import {
   DatePicker,
   Table,
   Tag,
+  Popover,
 } from "antd";
 import React, { useState, useEffect } from "react";
 import axiosClient from "@/apis/axiosClient";
@@ -147,6 +148,7 @@ const ProjectDetail = ({
   const [modalType, setModalType] = useState<string | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [fileUrls, setFileUrls] = useState<string[]>([]);
+  const [activeKey, setActiveKey] = useState<string[]>([]);
 
   useEffect(() => {
     getMembers();
@@ -182,10 +184,14 @@ const ProjectDetail = ({
           setTaskGroups(initialTaskGroups);
           setCurrentProject(response.data.project);
           setCurrentDepartment(response.data.department);
+          setActiveKey(initialTaskGroups.map((group) => group.groupName));
         } else {
           setTaskGroups(response.data.data);
           setCurrentProject(response.data.project);
           setCurrentDepartment(response.data.department);
+          setActiveKey(
+            response.data.data.map((group: TaskGroups) => group.groupName)
+          );
         }
       }
     } catch (error) {
@@ -236,6 +242,7 @@ const ProjectDetail = ({
         });
         console.log(response.data);
         setTaskGroups(newTaskGroups);
+        setActiveKey(newTaskGroups.map((group) => group.groupName));
         message.success("Task created successfully");
       }
     } catch (error) {
@@ -256,6 +263,10 @@ const ProjectDetail = ({
       if (response.status === 200 && response.data) {
         console.log(response.data);
         setTaskGroups([...taskGroups, { ...values, tasks: [] }]);
+        setActiveKey([
+          ...taskGroups.map((group) => group.groupName),
+          values.groupName,
+        ]);
         message.success("Task group created successfully");
       }
     } catch (error) {
@@ -279,11 +290,26 @@ const ProjectDetail = ({
     return <Loading loading={true} />;
   }
 
+  const updateStatusTaskDB = async (taskId: any, status: any) => {
+    try {
+      const response = await axiosClient.put(`/tasks/status/${taskId}`, {
+        status: status,
+      });
+      if (response.status === 200 && response.data) {
+        console.log(response.data);
+        message.success("Task status updated successfully");
+      }
+    } catch (err) {
+      console.log("Error updating task status in DB:", err);
+    }
+  };
+
   const handleStatusChange = (value: any, taskKey: any, groupName: any) => {
     const newTaskGroups = taskGroups.map((group) => {
       if (group.groupName === groupName) {
         const newTasks = group.tasks.map((task) => {
           if (task._id === taskKey) {
+            updateStatusTaskDB(taskKey, value);
             return { ...task, status: value };
           }
           return task;
@@ -300,6 +326,11 @@ const ProjectDetail = ({
       if (group.groupName === groupName) {
         const newTasks = group.tasks.map((task) => {
           if (task._id === taskKey) {
+            if (e.target.checked) {
+              updateStatusTaskDB(taskKey, "COMPLETED");
+            } else {
+              updateStatusTaskDB(taskKey, "UNDER REVIEW");
+            }
             return { ...task, completed: e.target.checked };
           }
           return task;
@@ -340,7 +371,18 @@ const ProjectDetail = ({
         fixed: "left",
         render: (text: any, record: any) => (
           <Flex vertical gap={0}>
-            <div>{record.taskName}</div>
+            <Popover
+              content={
+                <>
+                  <h1>{record._id}</h1>
+                  <h1>{record.taskName}</h1>
+                </>
+              }
+              trigger="click"
+              placement="right"
+            >
+              <div>{record.taskName}</div>
+            </Popover>
             <div>
               <Tag
                 icon={getTagIcon(record.priority)}
@@ -552,7 +594,8 @@ const ProjectDetail = ({
         </Flex>
         <div className={styles.cardContainer}>
           <Collapse
-            defaultActiveKey={taskGroups.map((group) => group.groupName)}
+            activeKey={activeKey} // Use state to control active keys
+            onChange={(keys) => setActiveKey(keys as string[])}
           >
             {taskGroups.map((group) => (
               <Panel header={group.groupName} key={group.groupName}>

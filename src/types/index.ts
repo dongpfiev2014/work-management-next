@@ -41,7 +41,7 @@ export interface Companies {
   employees: [string];
   description: string;
   companyLogo: string;
-  department: [string];
+  department: any[];
 }
 
 export interface CompanyState {

@@ -56,9 +56,12 @@ interface Task {
   title: string;
   content: string;
   priority: string;
-  followers: [];
+  followers: any[];
   department: {
     departmentName: string;
+  };
+  projectId: {
+    projectImage: string;
   };
 }
 
@@ -82,32 +85,64 @@ const initialData: Columns = {
         title: "Title 1",
         content: "Content 1",
         priority: "Urgent",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "2",
         title: "Title 2",
         content: "Content 2",
         priority: "Important",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "3",
         title: "Title 3",
         content: "Content 3",
         priority: "Critical",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "4",
         title: "Title 4",
         content: "Content 4",
         priority: "Neither",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
     ],
   },
@@ -120,24 +155,48 @@ const initialData: Columns = {
         title: "Title 1",
         content: "Content 1",
         priority: "Urgent",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "6",
         title: "Title 2",
         content: "Content 2",
         priority: "Important",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "7",
         title: "Title 3",
         content: "Content 3",
         priority: "Critical",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
     ],
   },
@@ -150,32 +209,64 @@ const initialData: Columns = {
         title: "Title 1",
         content: "Content 1",
         priority: "Urgent",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "9",
         title: "Title 2",
         content: "Content 2",
         priority: "Important",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "10",
         title: "Title 3",
         content: "Content 3",
         priority: "Critical",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "11",
         title: "Title 4",
         content: "Content 4",
         priority: "Neither",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
     ],
   },
@@ -188,16 +279,32 @@ const initialData: Columns = {
         title: "Title 1",
         content: "Content 1",
         priority: "Urgent",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
       {
         id: "13",
         title: "Title 2",
         content: "Content 2",
         priority: "Important",
-        followers: [],
+        followers: [
+          {
+            fullName: "John",
+          },
+          {
+            fullName: "Sarah",
+          },
+        ],
         department: { departmentName: "FrontEnd Development" },
+        projectId: { projectImage: "" },
       },
     ],
   },
@@ -235,11 +342,17 @@ export default function Home() {
   const router = useRouter();
   const [currentData, setCurrentData] = useState<Columns>(initialData);
   const [timeLeft, setTimeLeft] = useState(deadline - Date.now());
+  const [allColumnsEmpty, setAllColumnsEmpty] = useState(false);
+  const [progressColor, setProgressColor] = useState(conicColors);
 
   useEffect(() => {
     setWinReady(true);
     fetchPersonalTasks();
   }, []);
+
+  const checkIfAllColumnsAreEmpty = (columns: Columns) => {
+    return Object.values(columns).every((column) => column.items.length === 0);
+  };
 
   const fetchPersonalTasks = async () => {
     try {
@@ -247,8 +360,14 @@ export default function Home() {
         `/tasks/personalTask?page=${1}&limit=${20}`
       );
       if (response.status === 200 && response.data) {
+        const allColumnsEmpty = checkIfAllColumnsAreEmpty(response.data.data);
         console.log(response.data);
-        setCurrentData(response.data.data);
+        if (allColumnsEmpty) {
+          setAllColumnsEmpty(true);
+          setCurrentData(initialData);
+        } else {
+          setCurrentData(response.data.data);
+        }
       }
     } catch (err) {
       console.log("Failed to fetch personal tasks", err);
@@ -515,12 +634,16 @@ export default function Home() {
                                             cover={
                                               <Image
                                                 alt="example"
-                                                // src={item.image}
-                                                src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+                                                src={
+                                                  allColumnsEmpty
+                                                    ? "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+                                                    : item.projectId
+                                                        .projectImage
+                                                }
                                                 preview={false}
                                                 style={{
                                                   width: "100%",
-                                                  height: "100px",
+                                                  height: "80px",
                                                   borderRadius: "10px",
                                                   objectFit: "cover",
                                                   overflow: "hidden",
@@ -553,7 +676,13 @@ export default function Home() {
                                             bordered={false}
                                           >
                                             <Card.Meta
-                                              title={item.title}
+                                              title={
+                                                <Typography.Title
+                                                  style={{ fontSize: "14px" }}
+                                                >
+                                                  {item.title}
+                                                </Typography.Title>
+                                              }
                                               description={
                                                 <Space size="small">
                                                   <Avatar.Group>
@@ -586,14 +715,18 @@ export default function Home() {
                                                     )}
                                                   </Avatar.Group>
                                                   <Statistic.Countdown
+                                                    className="small-countdown"
                                                     value={deadline}
+                                                    onFinish={() =>
+                                                      setProgressColor("red")
+                                                    }
                                                   />
                                                   <Progress
                                                     percent={93}
                                                     showInfo={true}
                                                     type="dashboard"
-                                                    size={50}
-                                                    strokeColor={conicColors}
+                                                    size={36}
+                                                    strokeColor={progressColor}
                                                   />
                                                 </Space>
                                               }
