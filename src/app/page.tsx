@@ -9,6 +9,7 @@ import {
   Col,
   Divider,
   Flex,
+  Grid,
   Image,
   List,
   Popover,
@@ -70,6 +71,7 @@ interface Task {
   priority: string;
   completed: boolean;
   attachments: [];
+  comments: [];
 }
 
 interface Column {
@@ -81,6 +83,8 @@ interface Column {
 interface Columns {
   [key: string]: Column;
 }
+
+const deadline = 1000 * 60 * 60 * 2 + 1000 * 30;
 
 const initialData: Columns = {
   column1: {
@@ -102,11 +106,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "2",
@@ -123,11 +128,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "3",
@@ -144,11 +150,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "4",
@@ -165,11 +172,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
     ],
   },
@@ -192,11 +200,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "6",
@@ -213,11 +222,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "7",
@@ -234,11 +244,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
     ],
   },
@@ -261,11 +272,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "9",
@@ -282,11 +294,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "10",
@@ -303,11 +316,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "11",
@@ -324,11 +338,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
     ],
   },
@@ -351,11 +366,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
       {
         _id: "13",
@@ -372,11 +388,12 @@ const initialData: Columns = {
         ],
         departmentId: { departmentName: "FrontEnd Development" },
         projectId: { projectImage: "" },
-        dueDate: "",
+        dueDate: new Date(Date.now() + deadline),
         status: "",
         assignedBy: "",
         completed: false,
         attachments: [],
+        comments: [],
       },
     ],
   },
@@ -400,8 +417,6 @@ function getRandomColor() {
   return colors[Math.floor(Math.random() * 11)];
 }
 
-const deadline = Date.now() + 1000 * 60 * 60 * 2 + 1000 * 30;
-
 const conicColors: ProgressProps["strokeColor"] = {
   "0%": "#87d068",
   "50%": "#ffe58f",
@@ -416,6 +431,7 @@ export default function Home() {
   const [timeLeft, setTimeLeft] = useState(deadline - Date.now());
   const [allColumnsEmpty, setAllColumnsEmpty] = useState(false);
   const [progressColor, setProgressColor] = useState(conicColors);
+  const screens = Grid.useBreakpoint();
 
   useEffect(() => {
     setWinReady(true);
@@ -559,7 +575,9 @@ export default function Home() {
           ]}
         />
         <Space align="start" size={15}>
-          <Typography.Title level={2}>Product Development</Typography.Title>
+          <Typography.Title className="productDevelopment" level={2}>
+            Product Development
+          </Typography.Title>
           <FaStarAndCrescent />
           <Button danger icon={<FcPrivacy />}>
             PRIVATE
@@ -567,7 +585,7 @@ export default function Home() {
         </Space>
         <Flex justify="space-between">
           <Flex vertical>
-            <h6>Members on boards</h6>
+            <h6 className="membersOnBoards">Members on boards</h6>
             <Avatar.Group
               size="default"
               max={{
@@ -608,19 +626,26 @@ export default function Home() {
             <Button icon={<FaShareFromSquare />} type="text">
               Share
             </Button>
-            <Button danger type="primary">
+            <Button className="newBoards" danger type="primary">
               + New Boards
             </Button>
           </Flex>
         </Flex>
         {winReady ? (
           <Flex>
-            <Row gutter={16} style={{ width: "100%", height: "100%" }}>
+            <Row gutter={10} style={{ width: "100%", height: "100%" }}>
               <DragDropContext onDragEnd={onDragEnd}>
                 {Object.entries(currentData).map(
                   ([columnId, column], index) => {
                     return (
-                      <Col key={columnId} span={6}>
+                      <Col
+                        xs={12}
+                        sm={12}
+                        md={6}
+                        lg={6}
+                        key={columnId}
+                        span={6}
+                      >
                         <Flex justify="space-between" align="center">
                           <Space>
                             <Tag
@@ -643,16 +668,31 @@ export default function Home() {
                               ref={provided.innerRef}
                             >
                               <List
-                                style={{
-                                  backgroundColor: snapshot.isDraggingOver
-                                    ? "#efe3e3"
-                                    : "#f9f9f9",
-                                  borderRadius: "10px",
-                                  border: snapshot.isDraggingOver
-                                    ? "1.5px dashed red"
-                                    : "", //
-                                }}
-                                grid={{ gutter: 16, column: 1 }}
+                                style={
+                                  screens.md
+                                    ? {
+                                        backgroundColor: snapshot.isDraggingOver
+                                          ? "#efe3e3"
+                                          : "#f9f9f9",
+                                        borderRadius: "10px",
+                                        border: snapshot.isDraggingOver
+                                          ? "1.5px dashed red"
+                                          : "", //
+                                      }
+                                    : {
+                                        backgroundColor: snapshot.isDraggingOver
+                                          ? "#efe3e3"
+                                          : "#f9f9f9",
+                                        borderRadius: "10px",
+                                        border: snapshot.isDraggingOver
+                                          ? "1.5px dashed red"
+                                          : "", //
+                                        maxHeight: "600px",
+                                        height: "600px",
+                                        overflow: "auto",
+                                      }
+                                }
+                                grid={{ gutter: 10, column: 1 }}
                                 dataSource={column.items}
                                 renderItem={(item, index) => (
                                   <Draggable
@@ -737,15 +777,18 @@ export default function Home() {
                                                     }}
                                                   >
                                                     <Flex gap={4}>
-                                                      {item.assignedTo.length}
+                                                      {"0"}
                                                       <StarOutlined />
                                                     </Flex>
                                                     <Flex gap={4}>
-                                                      {item.assignedTo.length}
+                                                      {"0"}
                                                       <LikeOutlined />
                                                     </Flex>
                                                     <Flex gap={4}>
-                                                      {item.assignedTo.length}
+                                                      {item?.comments?.length >
+                                                      0
+                                                        ? item.comments.length
+                                                        : "0"}
                                                       <MessageOutlined />
                                                     </Flex>
                                                   </Flex>
@@ -763,7 +806,11 @@ export default function Home() {
                                                 }
                                                 description={
                                                   <Space size="small">
-                                                    <Avatar.Group>
+                                                    <Avatar.Group
+                                                      max={{
+                                                        count: 2,
+                                                      }}
+                                                    >
                                                       {item.assignedTo.map(
                                                         (
                                                           element: any,
@@ -796,13 +843,21 @@ export default function Home() {
                                                     </Avatar.Group>
                                                     <Statistic.Countdown
                                                       className="small-countdown"
-                                                      value={deadline}
+                                                      value={item.dueDate.toLocaleString()}
                                                       onFinish={() =>
                                                         setProgressColor("red")
                                                       }
                                                     />
                                                     <Progress
-                                                      percent={93}
+                                                      percent={
+                                                        new Date(item.dueDate) <
+                                                        new Date()
+                                                          ? 100
+                                                          : Math.floor(
+                                                              Math.random() *
+                                                                (90 - 50 + 1)
+                                                            ) + 50
+                                                      }
                                                       showInfo={true}
                                                       type="dashboard"
                                                       size={36}

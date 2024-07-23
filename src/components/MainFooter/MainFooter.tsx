@@ -12,7 +12,7 @@ const MainFooter = () => {
     <>
       <div className={styles.wrapper}>
         <Divider orientation="center" />
-        <Flex justify="center" align="center" gap={350}>
+        <Flex justify="center" align="center" gap={25}>
           <span>Copyright © 2024. All right reserved</span>
           <Space size="small">
             <Button type="link" icon={<InstagramOutlined />} size="middle" />

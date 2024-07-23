@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  justify-content: center;
+  align-items: center;
 }
 
 .cardContainer {
@@ -21,4 +23,21 @@
 
 .completed {
   background-color: rgb(46, 223, 46);
+}
+
+@media (max-width: 992px) {
+  .cardContainer {
+    width: 768px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cardContainer {
+    width: 576px;
+  }
+}
+@media (max-width: 576px) {
+  .cardContainer {
+    width: 360px;
+  }
 }

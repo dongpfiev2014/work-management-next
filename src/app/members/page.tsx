@@ -6,6 +6,8 @@ import {
   Col,
   Divider,
   Drawer,
+  Flex,
+  Grid,
   List,
   Row,
   Space,
@@ -44,12 +46,23 @@ const DescriptionItem = ({ title, content }: DescriptionItemProps) => (
   </div>
 );
 
+const getWidthDrawer = (key: string) => {
+  switch (key) {
+    case "":
+      return "";
+
+    default:
+      return "";
+  }
+};
+
 const page = () => {
   const companiesState = useAppSelector(companiesList);
   const [membersList, setMembersList] = useState([]);
   const router = useRouter();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const screens = Grid.useBreakpoint();
 
   useEffect(() => {
     if (companiesState?.companies && companiesState.companies?.length > 0) {
@@ -116,9 +129,15 @@ const page = () => {
             <List.Item
               key={item._id}
               extra={
-                <Link href="" onClick={() => showDrawer(item)}>
-                  View Profile
-                </Link>
+                <Flex vertical align="flex-end">
+                  <Link href="" onClick={() => showDrawer(item)}>
+                    View Profile
+                  </Link>
+                  <Space size={5}>
+                    <div>Role:</div>
+                    <div style={{ color: "red" }}>{item.role}</div>
+                  </Space>
+                </Flex>
               }
             >
               <List.Item.Meta
@@ -129,10 +148,6 @@ const page = () => {
                   <Space direction="vertical" size="small">
                     <Space size="large">
                       <div>Position: {item.position}</div>
-                      <Space size={5}>
-                        <div>Role:</div>
-                        <div style={{ color: "red" }}>{item.role}</div>
-                      </Space>
                     </Space>
                     <div>Email: {item.email}</div>
                   </Space>
@@ -143,7 +158,7 @@ const page = () => {
         }}
       />
       <Drawer
-        width={720}
+        width={screens.md ? 720 : 360}
         placement="right"
         closable={false}
         onClose={onCloseDrawer}

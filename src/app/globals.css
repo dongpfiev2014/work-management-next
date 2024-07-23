@@ -57,3 +57,31 @@ video {
 .small-countdown .ant-statistic-content-value {
   font-size: 20px;
 }
+
+.comment-content {
+  max-height: 40px; /* Chiều cao tối đa của bình luận */
+  overflow: hidden; /* Ẩn nội dung vượt quá chiều cao */
+  text-overflow: ellipsis; /* Thêm dấu "..." khi nội dung bị cắt */
+  white-space: nowrap; /* Không ngắt dòng */
+}
+
+.comment-content.expanded {
+  max-height: none; /* Mở rộng chiều cao khi bình luận được mở rộng */
+  white-space: normal; /* Ngắt dòng khi mở rộng */
+}
+
+/* Thay đổi định dạng cho màn hình nhỏ */
+@media (max-width: 470px) {
+  * {
+    font-size: 12px !important;
+  }
+  .productDevelopment {
+    font-size: 20px !important;
+  }
+  .membersOnBoards {
+    font-size: 20px !important;
+  }
+  .newBoards {
+    display: none !important;
+  }
+}

@@ -23,6 +23,7 @@ import {
   Table,
   Tag,
   Popover,
+  Grid,
 } from "antd";
 import React, { useState, useEffect } from "react";
 import axiosClient from "@/apis/axiosClient";
@@ -150,6 +151,7 @@ const ProjectDetail = ({
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [fileUrls, setFileUrls] = useState<string[]>([]);
   const [activeKey, setActiveKey] = useState<string[]>([]);
+  const screens = Grid.useBreakpoint();
 
   useEffect(() => {
     getMembers();
@@ -349,6 +351,7 @@ const ProjectDetail = ({
         title: "",
         dataIndex: "completed",
         key: "completed",
+        fixed: screens.xs ? "false" : "left",
         render: (text: any, record: any) => (
           <div
             className={`${styles.completedCircle} ${
@@ -363,13 +366,13 @@ const ProjectDetail = ({
             }
           />
         ),
-        width: 50,
+        width: 30,
       },
       {
         title: "Task Name",
         dataIndex: "taskName",
         key: "taskName",
-        fixed: "left",
+        fixed: screens.xs ? "false" : "left",
         render: (text: any, record: Tasks) => (
           <Popover
             content={<TaskDetail task={record} />}
@@ -475,7 +478,8 @@ const ProjectDetail = ({
         columns={columns}
         dataSource={tasks}
         pagination={false}
-        scroll={{ x: 1000 }}
+        scroll={{ x: 900 }}
+        size="small"
       />
     );
   };
@@ -484,6 +488,7 @@ const ProjectDetail = ({
     options: any
   ) => {
     const { file, onSuccess, onError } = options;
+
     try {
       const formData = new FormData();
       formData.append("multiTaskFile", file);
@@ -497,7 +502,7 @@ const ProjectDetail = ({
       // }
 
       const response = await axiosClient.post(
-        `/tasks/uploadMultiTaskFile/${params.projectId}`,
+        `/tasks/upload/MultiTaskFile/${params.projectId}`,
         formData,
         {
           headers: {
@@ -542,7 +547,12 @@ const ProjectDetail = ({
   return (
     <>
       <div className={styles.wrapper}>
-        <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+        <Flex
+          vertical={screens.xs ? true : false}
+          align="center"
+          justify="space-between"
+          style={{ width: "100%" }}
+        >
           <Breadcrumb
             style={{ cursor: "pointer" }}
             items={[
@@ -593,6 +603,7 @@ const ProjectDetail = ({
           <Collapse
             activeKey={activeKey} // Use state to control active keys
             onChange={(keys) => setActiveKey(keys as string[])}
+            className="styles.collapse"
           >
             {taskGroups.map((group) => (
               <Panel header={group.groupName} key={group.groupName}>

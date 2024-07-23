@@ -407,7 +407,7 @@ const Navigation: React.FC = () => {
             : "UI/UX Design",
           icon: <FcAssistant />,
           onClick: () => {
-            if (listOfDepartment(0)) {
+            if (listOfDepartment(1)) {
               router.push(`/departments/${listOfDepartment(1)._id}`);
             } else router.push(`/not-authorized-guest`);
           },
@@ -419,7 +419,7 @@ const Navigation: React.FC = () => {
             : "Web Development",
           icon: <FcDepartment />,
           onClick: () => {
-            if (listOfDepartment(0)) {
+            if (listOfDepartment(2)) {
               router.push(`/departments/${listOfDepartment(2)._id}`);
             } else router.push(`/not-authorized-guest`);
           },
@@ -431,7 +431,7 @@ const Navigation: React.FC = () => {
             : "Mobile Development",
           icon: <FcRatings />,
           onClick: () => {
-            if (listOfDepartment(0)) {
+            if (listOfDepartment(3)) {
               router.push(`/departments/${listOfDepartment(3)._id}`);
             } else router.push(`/not-authorized-guest`);
           },
@@ -500,8 +500,8 @@ const Navigation: React.FC = () => {
               <Avatar
                 size={35}
                 src={
-                  companiesState.companies?.length
-                    ? companiesState.companies[0].companyLogo
+                  companiesState.companies?.[0]?.companyLogo
+                    ? companiesState.companies[0]?.companyLogo
                     : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYtQnQqqG4Dy3gLgYr85AymXaj2tX09X8LMA&s"
                 }
               />

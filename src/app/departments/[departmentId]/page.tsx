@@ -17,6 +17,7 @@ import {
   Upload,
   Image,
   Badge,
+  Grid,
 } from "antd";
 import React, { useState, useEffect } from "react";
 import axiosClient from "@/apis/axiosClient";
@@ -75,6 +76,7 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
   const [membersList, setMembersList] = useState<any[]>([]);
   const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [isMember, setIsMember] = useState(false);
+  const screens = Grid.useBreakpoint();
 
   useEffect(() => {
     getMembers();
@@ -225,6 +227,7 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
       <>
         <div className={styles.wrapper}>
           <Flex
+            vertical={screens.xs ? true : false}
             align="center"
             justify="space-between"
             style={{ width: "100%" }}

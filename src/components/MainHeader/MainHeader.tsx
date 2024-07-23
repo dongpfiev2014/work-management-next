@@ -121,19 +121,28 @@ const MainHeader: React.FC = () => {
       dispatch(signout());
     }
   };
-  const handleSearch = (e: any) => {
-    router.push(`/search?q=${e.target.value}`);
-  };
+  // const handleSearch = (e: any) => {
+  //   router.push(`/search?q=${e.target.value}`);
+  // };
 
   return (
     <>
       <div className={styles.wrapper}>
         <Row className={styles.main}>
-          <Col className={styles.app} onClick={() => router.push("/")}>
+          <Col xs={4} sm={2} md={2} lg={0} xl={0}></Col>
+          <Col
+            xs={0}
+            sm={8}
+            md={6}
+            lg={4}
+            xl={4}
+            className={styles.app}
+            onClick={() => router.push("/")}
+          >
             <h2 className={styles.tasktis}>Tasktis</h2>
             <h2 className={styles.inc}>.inc</h2>
           </Col>
-          <Col className={styles.nav}>
+          <Col xs={20} sm={14} md={16} lg={20} xl={20} className={styles.nav}>
             <Flex justify="center" align="flex-start" vertical>
               <Typography.Title className="fs-4">
                 Hi {userState.currentUser?.fullName} !!
@@ -142,16 +151,15 @@ const MainHeader: React.FC = () => {
                 {"Do your job well"}
               </Typography.Text>
             </Flex>
-
             <Flex justify="center" align="center" gap={10}>
-              <Input.Search
+              {/* <Input.Search
                 placeholder="Search project, task, etc..."
                 allowClear
                 style={{
                   width: 400,
                 }}
                 onChange={handleSearch}
-              />
+              /> */}
               <Dropdown
                 dropdownRender={() => (
                   <>

@@ -25,10 +25,10 @@
 .app {
   background-color: white;
   height: 100%;
-  display: flex;
+  display: flex !important;
   justify-content: flex-start;
   align-items: center;
-  flex: 1 1 0;
+  flex: 1 1 0 !important;
   cursor: pointer;
   padding: 5px;
 }
@@ -46,9 +46,15 @@
 .nav {
   background-color: white;
   height: 100%;
-  display: flex;
+  display: flex !important;
   justify-content: space-between;
   align-items: center;
-  flex: 6 1 0;
+  flex: 6 1 0 !important;
   padding: 5px;
+}
+
+@media (max-width: 576px) {
+  .app {
+    display: none !important;
+  }
 }

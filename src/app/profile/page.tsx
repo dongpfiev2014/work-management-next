@@ -8,6 +8,7 @@ import {
   Divider,
   Flex,
   Form,
+  Grid,
   Image,
   Input,
   InputNumber,
@@ -38,6 +39,7 @@ const page: React.FC = () => {
   );
   const [avatarFile, setAvatarFile] = useState<File | undefined>(undefined);
   const [api, contextHolder] = notification.useNotification();
+  const screens = Grid.useBreakpoint();
 
   useEffect(() => {
     setIsClient(true);
@@ -129,7 +131,7 @@ const page: React.FC = () => {
           <Row>
             <Col span={24}>
               <Row>
-                <Col span={15}>
+                <Col xs={24} sm={24} md={15} span={15}>
                   <ConfigProvider
                     theme={{
                       components: {
@@ -298,7 +300,7 @@ const page: React.FC = () => {
                           }
                         />
                       </Form.Item>
-                      <Form.Item wrapperCol={{ offset: 4, span: 16 }}>
+                      <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
                         <Button type="primary" htmlType="submit">
                           Save
                         </Button>
@@ -306,16 +308,16 @@ const page: React.FC = () => {
                     </Form>
                   </ConfigProvider>
                 </Col>
-                <Col span={1}>
+                <Col xs={24} sm={24} md={1} span={1}>
                   <Divider
-                    type="vertical"
+                    type={screens.md ? "vertical" : "horizontal"}
                     style={{
                       height: "100%",
                       backgroundColor: "rgba(255, 255, 255, 0.65)",
                     }}
                   />
                 </Col>
-                <Col span={8}>
+                <Col xs={24} sm={24} md={8} span={8}>
                   <Row
                     className="d-flex justify-content-center"
                     style={{

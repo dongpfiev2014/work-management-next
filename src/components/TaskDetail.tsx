@@ -14,6 +14,11 @@ import {
   CaretRightOutlined,
   UploadOutlined,
   LikeOutlined,
+  FileWordOutlined,
+  FileExcelOutlined,
+  FilePdfOutlined,
+  DownloadOutlined,
+  FileZipOutlined,
 } from "@ant-design/icons";
 import axiosClient from "@/apis/axiosClient";
 
@@ -28,7 +33,7 @@ interface TaskDetailProps {
     status: string;
     priority: string;
     completed: boolean;
-    attachments: [];
+    attachments: string[];
   };
 }
 
@@ -36,29 +41,54 @@ interface Comment {
   _id: string;
   author: {
     _id: string;
-    name: string;
+    fullName: string;
     avatar: string;
   };
   text: string;
-  createdAt: string;
   likes: number;
+  createdAt: string;
 }
 
 const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
   const formattedDueDate = new Date(task.dueDate).toLocaleDateString();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>("");
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     fetchComments();
   }, []);
 
+  const getFileIcon = (url: string) => {
+    const extension = url.split(".").pop()?.toLowerCase();
+
+    switch (extension) {
+      case "docx":
+        return <FileWordOutlined />;
+      case "doc":
+        return <FileWordOutlined />;
+      case "xlsx":
+        return <FileExcelOutlined />;
+      case "xls":
+        return <FileExcelOutlined />;
+      case "pdf":
+        return <FilePdfOutlined />;
+      default:
+        return <FileZipOutlined />;
+    }
+  };
+
   const fetchComments = async () => {
     try {
-      const response = await axiosClient.get(`/api/comments/${task._id}`);
-      setComments(response.data);
+      const response = await axiosClient.get(`/comments/${task._id}`);
+      if (response.status === 200 && response.data) {
+        console.log(response.data.data);
+        setComments(response.data.data);
+      }
     } catch (error) {
-      console.error("Error fetching comments:", error);
+      console.log("Error fetching comments:", error);
     }
   };
 
@@ -66,15 +96,17 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
     console.log(newComment);
     if (newComment.trim() !== "") {
       try {
-        const response = await axiosClient.post("/api/comments", {
+        const response = await axiosClient.post("/comments", {
           taskId: task._id,
           text: newComment,
-          author: "USER_ID", // Replace with the actual user ID
         });
-        setComments([...comments, response.data]);
-        setNewComment("");
+        console.log(response.data);
+        if (response.status === 200 && response.data) {
+          setComments([...comments, response.data.data]);
+          setNewComment("");
+        }
       } catch (error) {
-        console.error("Error adding comment:", error);
+        console.log("Error adding comment:", error);
       }
     }
   };
@@ -82,16 +114,31 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
   const handleLike = async (commentId: string) => {
     try {
       // Update likes in the backend
-      await axiosClient.patch(`/api/comments/${commentId}/like`);
+      const response = await axiosClient.patch(`/comments/${commentId}/like`);
       // Fetch updated comments
-      fetchComments();
+      if (response.status === 200 && response.data) {
+        console.log(response.data);
+        fetchComments();
+      }
     } catch (error) {
-      console.error("Error liking comment:", error);
+      console.log("Error liking comment:", error);
     }
   };
 
+  const toggleExpand = (commentId: string) => {
+    setExpandedComments((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+  };
+
   return (
-    <Flex vertical gap={15}>
+    <Flex vertical gap={15} style={{ maxWidth: "400px", width: "400px" }}>
       <Typography.Title level={5}>{task.taskName}</Typography.Title>
       <Space size={5} direction="vertical">
         <Typography.Text type="success">
@@ -111,9 +158,40 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
         <Typography.Text style={{ marginLeft: "10px" }}>
           <Space>
             <CaretRightOutlined />
-            {task?.attachments?.length
-              ? task.attachments
-              : "There is no attachments for this task yet"}
+            <Flex vertical>
+              {task?.attachments?.length
+                ? task.attachments.map((item, index) => (
+                    <Space
+                      key={index}
+                      size="small"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      {getFileIcon(item)}
+                      <Typography.Text
+                        ellipsis
+                        style={{
+                          marginLeft: 8,
+                          width: "200px",
+                        }}
+                      >
+                        {item.split("/").pop()}
+                      </Typography.Text>
+                      <Button
+                        type="link"
+                        icon={<DownloadOutlined />}
+                        href={item}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Download
+                      </Button>
+                    </Space>
+                  ))
+                : "There is no attachments for this task yet"}
+            </Flex>
           </Space>
         </Typography.Text>
       </Space>
@@ -125,7 +203,6 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
           <Space>
             <CaretRightOutlined />
             <Upload>
-              {" "}
               <Button icon={<UploadOutlined />}>Upload file</Button>
             </Upload>
           </Space>
@@ -133,26 +210,61 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
       </Space>
       <Space size={10} direction="vertical">
         <Typography.Text style={{ fontWeight: 600 }}>
-          {"Comments"}
+          {"Comments "}
+          {`(${comments.length})`}
         </Typography.Text>
         {comments.length > 0 && (
           <List
+            style={{
+              maxHeight: "200px",
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              overflowY: "auto",
+            }}
             dataSource={comments}
-            renderItem={(comment) => (
-              <List.Item key={comment._id}>
+            renderItem={(item) => (
+              <List.Item key={item._id} style={{ padding: "2px 0px" }}>
                 <List.Item.Meta
-                  avatar={<Avatar src={comment.author.avatar} />}
-                  title={comment.author.name}
-                  description={new Date(comment.createdAt).toLocaleString()}
+                  avatar={<Avatar src={item.author.avatar} />}
+                  title={
+                    <>
+                      <Space
+                        size="small"
+                        style={{
+                          width: "100%",
+                        }}
+                      >
+                        <Typography.Text>
+                          <Typography.Text
+                            style={{
+                              fontSize: 13,
+                              fontWeight: "bold",
+                              marginRight: "10px",
+                            }}
+                          >
+                            {item.author.fullName}
+                          </Typography.Text>
+                          <Typography.Text style={{ fontSize: 13 }}>
+                            {item.text}
+                          </Typography.Text>
+                        </Typography.Text>
+                      </Space>
+                    </>
+                  }
+                  description={
+                    <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                      {new Date(item.createdAt).toLocaleString()}
+                    </Typography.Text>
+                  }
                 />
-                <Typography.Text>{comment.text}</Typography.Text>
                 <Space>
                   <Button
                     type="link"
                     icon={<LikeOutlined />}
-                    onClick={() => handleLike(comment._id)}
+                    onClick={() => handleLike(item._id)}
                   >
-                    {comment.likes}
+                    {item.likes}
                   </Button>
                 </Space>
               </List.Item>
@@ -165,7 +277,6 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
           onChange={(e) => setNewComment(e.target.value)}
           placeholder="Comment and press Enter to post"
           onPressEnter={handleAddComment}
-          //   onKeyDown={handleAddComment}
         />
       </Space>
     </Flex>
