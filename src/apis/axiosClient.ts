@@ -4,7 +4,7 @@ import axios from "axios";
 const tokenChannel = new BroadcastChannel("token_channel");
 
 const axiosClient = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}/${process.env.NEXT_PUBLIC_VERSION}`,
+  baseURL: `${process.env.NEXT_PUBLIC_SERVER_URL}/${process.env.NEXT_PUBLIC_VERSION}`,
   headers: {
     "Content-Type": "application/json",
   },

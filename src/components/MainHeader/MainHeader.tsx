@@ -36,9 +36,7 @@ import {
 } from "@/reducer/joinRequestSlice";
 import axiosClient from "@/apis/axiosClient";
 
-const socket = io(
-  `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}`
-);
+const socket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`);
 
 const MainHeader: React.FC = () => {
   const dispatch = useAppDispatch();

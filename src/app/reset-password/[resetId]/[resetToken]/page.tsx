@@ -30,7 +30,7 @@ const page = ({
     type: "error",
     showError: false,
   });
-  const baseURL = `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}/${process.env.NEXT_PUBLIC_VERSION}`;
+  const baseURL = `${process.env.NEXT_PUBLIC_SERVER_URL}/${process.env.NEXT_PUBLIC_VERSION}`;
 
   const onFinish = async () => {
     setMessageSignUp((prevState) => ({
