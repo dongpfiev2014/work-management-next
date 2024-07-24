@@ -38,7 +38,7 @@ const page = () => {
       const response = await axios.post(`${baseURL}/auth/forgot-password`, {
         email,
       });
-      console.log(response);
+
       if (response.data.success) {
         setMessageSignUp({
           title: "Change Password",
@@ -53,7 +53,6 @@ const page = () => {
       }
       return response.data;
     } catch (error: any) {
-      console.log(error);
       setMessageSignUp({
         title: "Error",
         message:

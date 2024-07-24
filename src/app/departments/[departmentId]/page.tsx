@@ -53,7 +53,7 @@ interface Department {
 type MentionsOptionProps = GetProp<MentionProps, "options">[number];
 
 const onSelect = (option: MentionsOptionProps) => {
-  console.log("select", option);
+  // console.log("select", option);
 };
 
 const IconText = ({ icon, text }: { icon: React.FC; text: string }) => (
@@ -97,11 +97,10 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
         `/projects/author/${params.departmentId}`
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         setMembersList(response.data.data);
       }
     } catch (error) {
-      console.log("Error", error);
+      // console.log("Error", error);
     }
   };
 
@@ -111,12 +110,11 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
         `/projects/${params.departmentId}`
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         setProjects(response.data.data);
         setCurrentDepartment(response.data.department);
       }
     } catch (error) {
-      console.log("Failed to fetch departments:", error);
+      // console.log("Failed to fetch departments:", error);
     }
   };
 
@@ -137,13 +135,12 @@ const Projects = ({ params }: { params: { departmentId: string } }) => {
         }
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         setProjects([...projects, response.data.data]);
         setIsModalVisible(false);
         form.resetFields();
       }
     } catch (error) {
-      console.log("Failed to create project:", error);
+      // console.log("Failed to create project:", error);
     }
   };
 

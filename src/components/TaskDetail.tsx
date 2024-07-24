@@ -3,13 +3,14 @@ import {
   Avatar,
   Button,
   Flex,
+  Grid,
   Input,
   List,
   Space,
   Typography,
   Upload,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 import {
   CaretRightOutlined,
   UploadOutlined,
@@ -53,9 +54,35 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
   const formattedDueDate = new Date(task.dueDate).toLocaleDateString();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>("");
-  const [expandedComments, setExpandedComments] = useState<Set<string>>(
-    new Set()
-  );
+  const [taskDimension, setTaskDimension] = useState<CSSProperties>({
+    width: "400px",
+    height: "auto",
+  });
+  const screens = Grid.useBreakpoint();
+
+  useEffect(() => {
+    if (screens.xl) {
+      setTaskDimension({ width: "400px", height: "auto" });
+    } else if (screens.lg) {
+      setTaskDimension({ width: "400px", height: "auto" });
+    } else if (screens.md) {
+      setTaskDimension({ width: "400px", height: "auto" });
+    } else if (screens.sm) {
+      setTaskDimension({
+        width: "300px",
+        height: "500px",
+        overflowY: "auto",
+        overflowX: "hidden",
+      });
+    } else if (screens.xs) {
+      setTaskDimension({
+        width: "255px",
+        height: "400px",
+        overflowY: "auto",
+        overflowX: "hidden",
+      });
+    }
+  }, [screens]);
 
   useEffect(() => {
     fetchComments();
@@ -84,29 +111,27 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
     try {
       const response = await axiosClient.get(`/comments/${task._id}`);
       if (response.status === 200 && response.data) {
-        console.log(response.data.data);
         setComments(response.data.data);
       }
     } catch (error) {
-      console.log("Error fetching comments:", error);
+      // console.log("Error fetching comments:", error);
     }
   };
 
   const handleAddComment = async () => {
-    console.log(newComment);
     if (newComment.trim() !== "") {
       try {
         const response = await axiosClient.post("/comments", {
           taskId: task._id,
           text: newComment,
         });
-        console.log(response.data);
+
         if (response.status === 200 && response.data) {
           setComments([...comments, response.data.data]);
           setNewComment("");
         }
       } catch (error) {
-        console.log("Error adding comment:", error);
+        // console.log("Error adding comment:", error);
       }
     }
   };
@@ -117,28 +142,15 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
       const response = await axiosClient.patch(`/comments/${commentId}/like`);
       // Fetch updated comments
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         fetchComments();
       }
     } catch (error) {
-      console.log("Error liking comment:", error);
+      // console.log("Error liking comment:", error);
     }
   };
 
-  const toggleExpand = (commentId: string) => {
-    setExpandedComments((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(commentId)) {
-        newSet.delete(commentId);
-      } else {
-        newSet.add(commentId);
-      }
-      return newSet;
-    });
-  };
-
   return (
-    <Flex vertical gap={15} style={{ maxWidth: "400px", width: "400px" }}>
+    <Flex vertical gap={15} style={taskDimension}>
       <Typography.Title level={5}>{task.taskName}</Typography.Title>
       <Space size={5} direction="vertical">
         <Typography.Text type="success">

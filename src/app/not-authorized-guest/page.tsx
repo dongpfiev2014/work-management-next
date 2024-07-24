@@ -32,7 +32,6 @@ const NotAuthorized: React.FC = () => {
           </Button>
         }
       />
-      ;
     </>
   );
 };

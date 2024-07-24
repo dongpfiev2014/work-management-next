@@ -25,11 +25,9 @@ export const requestApproved = createAsyncThunk(
         data
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         return response.data;
       }
     } catch (error: any) {
-      console.log(error);
       return thunkAPI.rejectWithValue(error.message);
     }
   }

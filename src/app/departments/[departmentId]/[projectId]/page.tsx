@@ -168,11 +168,10 @@ const ProjectDetail = ({
         `/projects/author/${params.departmentId}`
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         setMembersList(response.data.data);
       }
     } catch (error) {
-      console.log("Error", error);
+      // console.log("Error", error);
     }
   };
 
@@ -182,7 +181,6 @@ const ProjectDetail = ({
         `/tasks/${params.departmentId}/${params.projectId}`
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         if (response.data.data.length === 0) {
           setTaskGroups(initialTaskGroups);
           setCurrentProject(response.data.project);
@@ -198,7 +196,7 @@ const ProjectDetail = ({
         }
       }
     } catch (error) {
-      console.log("Failed to fetch all tasks:", error);
+      // console.log("Failed to fetch all tasks:", error);
     }
   };
 
@@ -217,8 +215,6 @@ const ProjectDetail = ({
       attachments: fileUrls,
       ...res,
     };
-    console.log(values);
-    console.log(newTask);
 
     try {
       // const formData = new FormData();
@@ -243,13 +239,12 @@ const ProjectDetail = ({
           }
           return group;
         });
-        console.log(response.data);
+
         setTaskGroups(newTaskGroups);
         setActiveKey(newTaskGroups.map((group) => group.groupName));
         message.success("Task created successfully");
       }
     } catch (error) {
-      console.log("Failed to create task:", error);
       message.error("Failed to create task");
     }
     handleCancel();
@@ -257,14 +252,11 @@ const ProjectDetail = ({
 
   const handleCreateTaskGroup = async (values: any) => {
     try {
-      console.log(values);
-      console.log(params.projectId);
       const response = await axiosClient.post(
         `/tasks/taskGroups/${params.projectId}`,
         values
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         setTaskGroups([...taskGroups, { ...values, tasks: [] }]);
         setActiveKey([
           ...taskGroups.map((group) => group.groupName),
@@ -273,7 +265,6 @@ const ProjectDetail = ({
         message.success("Task group created successfully");
       }
     } catch (error) {
-      console.log("Error creating task group:", error);
       message.error("Failed to create task group");
     }
     handleCancel();
@@ -299,11 +290,10 @@ const ProjectDetail = ({
         status: status,
       });
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         message.success("Task status updated successfully");
       }
     } catch (err) {
-      console.log("Error updating task status in DB:", err);
+      // console.log("Error updating task status in DB:", err);
     }
   };
 
@@ -511,13 +501,11 @@ const ProjectDetail = ({
         }
       );
 
-      console.log(response.data);
       const fileUrl = response.data.data;
       setFileUrls((prev) => [...prev, ...fileUrl]);
       onSuccess(response.data, file);
       message.success(`${file.name} file uploaded successfully`);
     } catch (error: any) {
-      console.log(error);
       onError(error);
       message.error(`${file.name} file upload failed.`);
     }
@@ -526,7 +514,7 @@ const ProjectDetail = ({
   const handleUploadChange: UploadProps["onChange"] = (info) => {
     const { status } = info.file;
     if (status !== "uploading") {
-      console.log(info.file, info.fileList);
+      // console.log(info.file, info.fileList);
     }
     if (status === "done") {
       setFileList(info.fileList);

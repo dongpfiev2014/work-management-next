@@ -65,8 +65,6 @@ const Navigation: React.FC = () => {
     return null;
   };
 
-  console.log(companiesState);
-
   const onClick: MenuProps["onClick"] = (e) => {};
 
   const showModal = () => {
@@ -80,7 +78,6 @@ const Navigation: React.FC = () => {
   };
 
   const onFinishCreateOrganization = async (values: any) => {
-    console.log("CreateOrganization:", values);
     try {
       setConfirmLoading(true);
       const formData = new FormData();
@@ -98,12 +95,11 @@ const Navigation: React.FC = () => {
         }
       );
       if (response && response.status === 201 && response.data) {
-        console.log(response.data);
         window.location.reload();
         return response.data;
       }
     } catch (error) {
-      console.log("Error creating organization:", error);
+      // console.log("Error creating organization:", error);
     }
   };
 
@@ -159,7 +155,6 @@ const Navigation: React.FC = () => {
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
   };
   const onChangeTab = (key: any) => {

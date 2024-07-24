@@ -34,7 +34,7 @@ interface Department {
 type MentionsOptionProps = GetProp<MentionProps, "options">[number];
 
 const onSelect = (option: MentionsOptionProps) => {
-  console.log("select", option);
+  // console.log("select", option);
 };
 
 const Departments: React.FC = () => {
@@ -65,11 +65,10 @@ const Departments: React.FC = () => {
         `/members/${companiesState.companies?.[0]?._id}`
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         setMembersList(response.data.data);
       }
     } catch (error) {
-      console.log("Error", error);
+      // console.log("Error", error);
     }
   };
 
@@ -79,7 +78,6 @@ const Departments: React.FC = () => {
         `/departments/${companiesState.companies?.[0]._id}`
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         setDepartments(response.data.data);
       }
     } catch (error) {
@@ -105,7 +103,7 @@ const Departments: React.FC = () => {
       newMemberAccesses,
       ...res,
     };
-    console.log(newDepartment);
+
     try {
       const response = await axiosClient.post(
         `/departments/${companiesState.companies?.[0]?._id}`,
@@ -117,7 +115,7 @@ const Departments: React.FC = () => {
         form.resetFields();
       }
     } catch (error) {
-      console.log("Failed to create department:", error);
+      // console.log("Failed to create department:", error);
     }
   };
 

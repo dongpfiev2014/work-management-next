@@ -16,10 +16,9 @@ export const register = createAsyncThunk(
     try {
       const data = JSON.stringify(userData);
       const response = await axiosClient.post("/auth/signup", data);
-      console.log(response.data);
+
       return response.data;
     } catch (err: any) {
-      console.log(err.response);
       return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
@@ -30,12 +29,11 @@ export const login = createAsyncThunk(
   async (userData: any, thunkAPI) => {
     try {
       const data = JSON.stringify(userData);
-      console.log(data);
+
       const response = await axiosClient.post("/auth/login", data);
-      console.log(response.data);
+
       return response.data;
     } catch (err: any) {
-      console.log(err.response);
       return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
@@ -46,10 +44,9 @@ export const fetchUser = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axiosClient.get("/auth/user");
-      console.log(response.data);
+
       return response.data;
     } catch (err: any) {
-      console.log(err.response);
       return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
@@ -59,10 +56,9 @@ export const signout = createAsyncThunk("auth/signout", async (_, thunkAPI) => {
   try {
     const response = await axiosClient.post("/auth/signout");
     localStorage.removeItem("accessToken");
-    console.log(response.data);
+
     return response.data;
   } catch (err: any) {
-    console.log(err.response);
     return thunkAPI.rejectWithValue(err.response?.data || err.message);
   }
 });
@@ -73,10 +69,9 @@ export const logInWithGoogle = createAsyncThunk(
     try {
       const data = JSON.stringify(userData);
       const response = await axiosClient.post("/auth/logInWithGoogle", data);
-      console.log(response.data);
+
       return response.data;
     } catch (err: any) {
-      console.log(err.response);
       return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
@@ -98,11 +93,9 @@ export const updateProfile = createAsyncThunk(
         },
       });
       if (response && response.status === 200 && response.data) {
-        console.log(response.data);
         return response.data;
       }
     } catch (err: any) {
-      console.log(err);
       return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }

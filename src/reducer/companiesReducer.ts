@@ -15,10 +15,8 @@ export const fetchCompanies = createAsyncThunk(
   async (userId: any, thunkAPI) => {
     try {
       const response = await axiosClient.get(`/company/${userId}`);
-      console.log(response.data);
       return response.data;
     } catch (err: any) {
-      console.log(err.response);
       return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }

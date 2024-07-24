@@ -449,7 +449,7 @@ export default function Home() {
       );
       if (response.status === 200 && response.data) {
         const allColumnsEmpty = checkIfAllColumnsAreEmpty(response.data.data);
-        console.log(response.data);
+
         if (allColumnsEmpty) {
           setAllColumnsEmpty(true);
           setCurrentData(initialData);
@@ -458,7 +458,7 @@ export default function Home() {
         }
       }
     } catch (err) {
-      console.log("Failed to fetch personal tasks", err);
+      // console.log("Failed to fetch personal tasks", err);
     }
   };
 
@@ -468,10 +468,10 @@ export default function Home() {
         status: newStatus,
       });
       if (response.status === 200) {
-        console.log("Task updated successfully");
+        // console.log("Task updated successfully");
       }
     } catch (err) {
-      console.log("Failed to update task", err);
+      // console.log("Failed to update task", err);
     }
   };
 
@@ -505,7 +505,7 @@ export default function Home() {
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
-    console.log(source, destination);
+
     if (destination) {
       const sourceColumn = currentData[source.droppableId];
       const destinationColumn =
@@ -513,7 +513,6 @@ export default function Home() {
       const sourceItems = [...sourceColumn.items];
       const destinationItems = [...destinationColumn.items];
       const [removed] = sourceItems.splice(source.index, 1);
-      console.log(sourceItems);
 
       if (source.droppableId === destination.droppableId) {
         sourceItems.splice(destination.index, 0, removed);

@@ -76,11 +76,10 @@ const page = () => {
         `/members/${companiesState.companies?.[0]?._id}`
       );
       if (response.status === 200 && response.data) {
-        console.log(response.data);
         setMembersList(response.data.data);
       }
     } catch (error) {
-      console.log("Error", error);
+      // console.log("Error", error);
     }
   };
 

@@ -27,13 +27,15 @@ import { PasswordPatternRules } from "@/lib/constants";
 import {
   createUserWithEmailAndPassword,
   getAuth,
+  getRedirectResult,
   GoogleAuthProvider,
   sendEmailVerification,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   User,
 } from "firebase/auth";
-import { app } from "@/config/config";
+import { auth } from "@/config/config";
 import { fetchGeoLocation } from "@/utils/geoLocation";
 import { FcGoogle } from "react-icons/fc";
 
@@ -63,7 +65,6 @@ const SignUpForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [googleUser, setGoogleUser] = useState<User | null>(null);
   const [isSignInWithGoogle, setIsSignInWithGoogle] = useState(false);
-  const auth = getAuth(app);
 
   useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
@@ -78,7 +79,7 @@ const SignUpForm = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setGoogleUser(user);
-        console.log(user);
+        // console.log(user);
       } else {
         setGoogleUser(null);
       }
@@ -127,6 +128,38 @@ const SignUpForm = () => {
     }
   }, [googleUser]);
 
+  useEffect(() => {
+    const fetchRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+
+        if (result) {
+          const geoLocationDetails = await fetchGeoLocation();
+          dispatch(
+            logInWithGoogle({ userInfo: result.user, geoLocationDetails })
+          ).then((action: any) => {
+            const response = action.payload;
+            if (response.success) {
+              success();
+              localStorage.setItem("accessToken", response.accessToken);
+            } else {
+              setMessageSignUp((prevState) => ({
+                title: "Error",
+                message: "Failed to log in with Google. Please try again",
+                type: "error",
+                showError: true,
+              }));
+              setSubmitting(false);
+            }
+          });
+        }
+      } catch (error) {
+        // console.log("Error getting redirect result", error);
+      }
+    };
+    fetchRedirectResult();
+  }, []);
+
   if (loading)
     return (
       <>
@@ -136,29 +169,35 @@ const SignUpForm = () => {
 
   const signInWithGoogle = async () => {
     setIsSignInWithGoogle(true);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
     try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: "select_account" });
-      const result = await signInWithPopup(auth, provider);
-      console.log(result);
-      const geoLocationDetails = await fetchGeoLocation();
-      dispatch(
-        logInWithGoogle({ userInfo: result.user, geoLocationDetails })
-      ).then((action: any) => {
-        const response = action.payload;
-        if (response.success) {
-          success();
-          localStorage.setItem("accessToken", response.accessToken);
-        } else {
-          setMessageSignUp((prevState) => ({
-            title: "Error",
-            message: "Failed to log in with Google. Please try again",
-            type: "error",
-            showError: true,
-          }));
-          setSubmitting(false);
-        }
-      });
+      if (isMobile) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        const result = await signInWithPopup(auth, provider);
+
+        const geoLocationDetails = await fetchGeoLocation();
+        dispatch(
+          logInWithGoogle({ userInfo: result.user, geoLocationDetails })
+        ).then((action: any) => {
+          const response = action.payload;
+          if (response.success) {
+            success();
+            localStorage.setItem("accessToken", response.accessToken);
+          } else {
+            setMessageSignUp((prevState) => ({
+              title: "Error",
+              message: "Failed to log in with Google. Please try again",
+              type: "error",
+              showError: true,
+            }));
+            setSubmitting(false);
+          }
+        });
+      }
     } catch (error: any) {
       console.error("Error signing in with Google: ", error);
     }
@@ -185,7 +224,6 @@ const SignUpForm = () => {
         });
       })
       .catch((error) => {
-        console.log("Error creating user: ", error);
         setMessageSignUp({
           title: "Error",
           message:

@@ -46,7 +46,7 @@ const page = ({
           password,
         }
       );
-      console.log(response);
+
       if (response.data.success) {
         setSubmitting(false);
         setMessageSignUp({
@@ -61,7 +61,6 @@ const page = ({
       }
       return response.data;
     } catch (error: any) {
-      console.log(error);
       setMessageSignUp({
         title: "Error",
         message:

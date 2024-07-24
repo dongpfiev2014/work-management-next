@@ -19,15 +19,16 @@ import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { login, logInWithGoogle } from "@/reducer/authReducer";
 import { userInfo } from "@/selector/userSelector";
-import { app } from "@/config/config";
 import {
-  getAuth,
+  getRedirectResult,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
   User,
 } from "firebase/auth";
 import { fetchGeoLocation } from "@/utils/geoLocation";
 import { FcGoogle } from "react-icons/fc";
+import { auth } from "@/config/config";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -42,13 +43,12 @@ const LoginForm = () => {
   const userState = useAppSelector(userInfo);
   const [googleUser, setGoogleUser] = useState<User | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  console.log(userState);
-  const auth = getAuth(app);
+  const [messageLog, setMessageLog] = useState("");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        console.log(user);
+        // console.log(user);
         setGoogleUser(user);
       } else {
         setGoogleUser(null);
@@ -58,28 +58,61 @@ const LoginForm = () => {
   }, [auth, router]);
 
   const signInWithGoogle = async () => {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
     try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: "select_account" });
-      const result = await signInWithPopup(auth, provider);
-      console.log(result);
-      const geoLocationDetails = await fetchGeoLocation();
-      dispatch(
-        logInWithGoogle({ userInfo: result.user, geoLocationDetails })
-      ).then((action: any) => {
-        const response = action.payload;
-        if (response.success) {
-          success();
-          localStorage.setItem("accessToken", response.accessToken);
-        } else {
-          setShowError(true);
-          setSubmitting(false);
-        }
-      });
+      if (isMobile) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        const result = await signInWithPopup(auth, provider);
+
+        const geoLocationDetails = await fetchGeoLocation();
+        dispatch(
+          logInWithGoogle({ userInfo: result.user, geoLocationDetails })
+        ).then((action: any) => {
+          const response = action.payload;
+          if (response.success) {
+            success();
+            localStorage.setItem("accessToken", response.accessToken);
+          } else {
+            setShowError(true);
+            setSubmitting(false);
+          }
+        });
+      }
     } catch (error: any) {
       console.error("Error signing in with Google: ", error);
     }
   };
+
+  useEffect(() => {
+    const fetchRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+
+        if (result) {
+          const geoLocationDetails = await fetchGeoLocation();
+          dispatch(
+            logInWithGoogle({ userInfo: result.user, geoLocationDetails })
+          ).then((action: any) => {
+            const response = action.payload;
+            if (response.success) {
+              success();
+              localStorage.setItem("accessToken", response.accessToken);
+            } else {
+              setShowError(true);
+              setSubmitting(false);
+            }
+          });
+        }
+      } catch (error) {
+        // console.log("Error getting redirect result", error);
+      }
+    };
+    fetchRedirectResult();
+  }, []);
 
   useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
@@ -104,12 +137,13 @@ const LoginForm = () => {
     dispatch(login({ email, password, geoLocationDetails })).then(
       (action: any) => {
         const response = action.payload;
-        console.log(response);
+
         if (response.success && response.data.emailVerified) {
           success();
           localStorage.setItem("accessToken", response.accessToken);
           setShowError(false);
         } else {
+          setMessageLog(response.message);
           setShowError(true);
           setSubmitting(false);
         }
@@ -258,7 +292,11 @@ const LoginForm = () => {
             {showError && (
               <Alert
                 message="Error"
-                description="Invalid email or password or email not verified."
+                description={
+                  messageLog
+                  // ||
+                  // "Invalid email or password or email not verified."
+                }
                 type="error"
                 showIcon
                 closable

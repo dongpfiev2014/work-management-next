@@ -69,7 +69,6 @@ axiosClient.interceptors.response.use(
           }
         } catch (refreshError) {
           isRefreshing = false;
-          console.log("Error refreshing token:", refreshError);
           localStorage.removeItem("accessToken");
           return Promise.reject(refreshError);
         }
@@ -86,7 +85,6 @@ axiosClient.interceptors.response.use(
       error.response.status === 403 &&
       !originalRequest._retry
     ) {
-      console.log("Login session expired:", error);
       originalRequest._retry = true;
       localStorage.removeItem("accessToken");
     }
