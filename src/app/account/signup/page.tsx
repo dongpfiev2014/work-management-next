@@ -273,14 +273,16 @@ const SignUpForm = () => {
                   "Create an account to track your progress, showcase your skill-set and be a part of the community."
                 }
               </Typography.Text>
-              <Button
-                icon={<FcGoogle size={20} />}
-                block
-                type="link"
-                onClick={() => !isMobile && signInWithGoogle}
-              >
-                {"Continue with Google"}
-              </Button>
+              {!isMobile && (
+                <Button
+                  icon={<FcGoogle size={20} />}
+                  block
+                  type="link"
+                  onClick={signInWithGoogle}
+                >
+                  {"Continue with Google"}
+                </Button>
+              )}
               <Divider plain>OR</Divider>
             </Flex>
             <Form.Item

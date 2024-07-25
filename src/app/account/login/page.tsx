@@ -181,7 +181,7 @@ const LoginForm = () => {
             initialValues={{ remember: true }}
           >
             <Flex vertical gap="middle" align="center" justify="center">
-              <h1>Login</h1>
+              s<h1>Login</h1>
               <Typography.Text style={{ textAlign: "center" }}>
                 {"Welcome back! Let's take you to your account."}
               </Typography.Text>
@@ -202,14 +202,16 @@ const LoginForm = () => {
                   <Typography.Text strong>{"Password123@"}</Typography.Text>
                 </div>
               </div>
-              <Button
-                icon={<FcGoogle size={20} />}
-                block
-                type="link"
-                onClick={() => !isMobile && signInWithGoogle}
-              >
-                {"Continue with Google"}
-              </Button>
+              {!isMobile && (
+                <Button
+                  icon={<FcGoogle size={20} />}
+                  block
+                  type="link"
+                  onClick={signInWithGoogle}
+                >
+                  {"Continue with Google"}
+                </Button>
+              )}
               <Divider plain>OR</Divider>
             </Flex>
             <Form.Item
