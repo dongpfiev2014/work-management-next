@@ -69,7 +69,9 @@ const SignUpForm = () => {
   const [isSignInWithGoogle, setIsSignInWithGoogle] = useState(false);
 
   provider.setCustomParameters({ prompt: "select_account" });
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /Mobi|Android/i.test(navigator.userAgent);
 
   useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {

@@ -47,7 +47,9 @@ const LoginForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [messageLog, setMessageLog] = useState("");
 
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /Mobi|Android/i.test(navigator.userAgent);
   provider.setCustomParameters({ prompt: "select_account" });
 
   useEffect(() => {
