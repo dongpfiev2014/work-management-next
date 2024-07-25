@@ -9,7 +9,7 @@ import { getAuth } from "firebase/auth";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_GG_API_KEY,
-  authDomain: "work-management-428917.firebaseapp.com",
+  authDomain: "tasktis.netlify.app",
   projectId: "work-management-428917",
   storageBucket: "work-management-428917.appspot.com",
   messagingSenderId: "626486928202",
