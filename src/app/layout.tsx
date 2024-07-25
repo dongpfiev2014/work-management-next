@@ -26,14 +26,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = cookies();
-  const refreshToken = cookieStore.get("refreshToken");
+  // const cookieStore = cookies();
+  // const refreshToken = cookieStore.get("refreshToken");
   // Chỉ thực hiện localStorage trên client-side
-  if (typeof window !== "undefined") {
-    if (!refreshToken) {
-      localStorage.removeItem("accessToken");
-    }
-  }
+  // if (typeof window !== "undefined") {
+  //   if (!refreshToken) {
+  //     localStorage.removeItem("accessToken");
+  //   }
+  // }
 
   return (
     <html lang="en">
