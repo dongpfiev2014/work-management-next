@@ -30,6 +30,8 @@ import { fetchGeoLocation } from "@/utils/geoLocation";
 import { FcGoogle } from "react-icons/fc";
 import { auth } from "@/config/config";
 
+const provider = new GoogleAuthProvider();
+
 const LoginForm = () => {
   const router = useRouter();
   const accessToken =
@@ -57,61 +59,78 @@ const LoginForm = () => {
     return () => unsubscribe();
   }, [auth, router]);
 
-  const signInWithGoogle = async () => {
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
+  // const signInWithGoogle = async () => {
+  //   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-    try {
-      if (isMobile) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        const result = await signInWithPopup(auth, provider);
+  //   provider.setCustomParameters({ prompt: "select_account" });
 
-        const geoLocationDetails = await fetchGeoLocation();
-        dispatch(
-          logInWithGoogle({ userInfo: result.user, geoLocationDetails })
-        ).then((action: any) => {
-          const response = action.payload;
-          if (response.success) {
-            success();
-            localStorage.setItem("accessToken", response.accessToken);
-          } else {
-            setShowError(true);
-            setSubmitting(false);
-          }
-        });
-      }
-    } catch (error: any) {
-      console.error("Error signing in with Google: ", error);
-    }
+  //   try {
+  //     if (isMobile) {
+  //       await signInWithRedirect(auth, provider);
+  //     } else {
+  //       const result = await signInWithPopup(auth, provider);
+
+  //       const geoLocationDetails = await fetchGeoLocation();
+  //       dispatch(
+  //         logInWithGoogle({ userInfo: result.user, geoLocationDetails })
+  //       ).then((action: any) => {
+  //         const response = action.payload;
+  //         if (response.success) {
+  //           success();
+  //           localStorage.setItem("accessToken", response.accessToken);
+  //         } else {
+  //           setShowError(true);
+  //           setSubmitting(false);
+  //         }
+  //       });
+  //     }
+  //   } catch (error: any) {
+  //     console.error("Error signing in with Google: ", error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const fetchRedirectResult = async () => {
+  //     try {
+  //       const result = await getRedirectResult(auth);
+
+  //       if (result) {
+  //         const geoLocationDetails = await fetchGeoLocation();
+  //         dispatch(
+  //           logInWithGoogle({ userInfo: result.user, geoLocationDetails })
+  //         ).then((action: any) => {
+  //           const response = action.payload;
+  //           if (response.success) {
+  //             success();
+  //             localStorage.setItem("accessToken", response.accessToken);
+  //           } else {
+  //             setShowError(true);
+  //             setSubmitting(false);
+  //           }
+  //         });
+  //       }
+  //     } catch (error) {
+  //       // console.log("Error getting redirect result", error);
+  //     }
+  //   };
+  //   fetchRedirectResult();
+  // }, []);
+
+  const signInWithGoogle = () => {
+    signInWithRedirect(auth, provider);
   };
 
   useEffect(() => {
-    const fetchRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-
+    getRedirectResult(auth)
+      .then((result) => {
         if (result) {
-          const geoLocationDetails = await fetchGeoLocation();
-          dispatch(
-            logInWithGoogle({ userInfo: result.user, geoLocationDetails })
-          ).then((action: any) => {
-            const response = action.payload;
-            if (response.success) {
-              success();
-              localStorage.setItem("accessToken", response.accessToken);
-            } else {
-              setShowError(true);
-              setSubmitting(false);
-            }
-          });
+          const user = result.user;
+          console.log("User info:", user);
         }
-      } catch (error) {
-        // console.log("Error getting redirect result", error);
-      }
-    };
-    fetchRedirectResult();
+      })
+      .catch((error) => {
+        console.error("Error during sign-in with redirect:", error);
+      });
   }, []);
 
   useEffect(() => {
