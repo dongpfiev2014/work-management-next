@@ -46,6 +46,8 @@ interface MessageSignUp {
   showError: boolean;
 }
 
+const provider = new GoogleAuthProvider();
+
 const SignUpForm = () => {
   const router = useRouter();
   const accessToken =
@@ -65,6 +67,9 @@ const SignUpForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [googleUser, setGoogleUser] = useState<User | null>(null);
   const [isSignInWithGoogle, setIsSignInWithGoogle] = useState(false);
+
+  provider.setCustomParameters({ prompt: "select_account" });
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
   useEffect(() => {
     if (accessToken && accessToken !== "undefined" && accessToken !== null) {
@@ -169,9 +174,6 @@ const SignUpForm = () => {
 
   const signInWithGoogle = async () => {
     setIsSignInWithGoogle(true);
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
     try {
       if (isMobile) {
@@ -275,7 +277,7 @@ const SignUpForm = () => {
                 icon={<FcGoogle size={20} />}
                 block
                 type="link"
-                onClick={signInWithGoogle}
+                onClick={() => !isMobile && signInWithGoogle}
               >
                 {"Continue with Google"}
               </Button>

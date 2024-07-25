@@ -187,7 +187,7 @@ const LoginForm = () => {
               </Typography.Text>
               <Typography.Text style={{ textAlign: "center" }}>
                 {
-                  "You can log in using your email or use the credentials below to explore the website:"
+                  "You can log in using your email or use the credentials below to explore the website. On mobile devices, please disable the 'Prevent Cross-site tracking' feature in your browser settings.:"
                 }
               </Typography.Text>
               <div className={styles.credentials}>
@@ -206,7 +206,7 @@ const LoginForm = () => {
                 icon={<FcGoogle size={20} />}
                 block
                 type="link"
-                onClick={signInWithGoogle}
+                onClick={() => !isMobile && signInWithGoogle}
               >
                 {"Continue with Google"}
               </Button>
