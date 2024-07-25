@@ -9,13 +9,16 @@ import { getAuth } from "firebase/auth";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_GG_API_KEY,
-  authDomain: "work-management-428917.firebaseapp.com",
+  authDomain: "tasktis.netlify.app",
   projectId: "work-management-428917",
   storageBucket: "work-management-428917.appspot.com",
   messagingSenderId: "626486928202",
   appId: "1:626486928202:web:8b877eae371c7d545597b3",
   measurementId: "G-TXDTCXGXHL",
 };
+
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
 
 let analytics;
 
@@ -31,6 +34,5 @@ if (typeof window !== "undefined") {
   initializeAnalytics();
 }
 // Initialize Firebase
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+
 export { analytics };
