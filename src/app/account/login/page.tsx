@@ -183,7 +183,7 @@ const LoginForm = () => {
             initialValues={{ remember: true }}
           >
             <Flex vertical gap="middle" align="center" justify="center">
-              s<h1>Login</h1>
+              <h1>Login</h1>
               <Typography.Text style={{ textAlign: "center" }}>
                 {"Welcome back! Let's take you to your account."}
               </Typography.Text>
