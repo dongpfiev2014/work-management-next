@@ -9,7 +9,9 @@ import Script from "next/script";
 import { ConfigProvider } from "antd";
 import MainLayout from "@/components/MainLayout/MainLayout";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { cookies } from "next/headers";
+import { GoogleAnalytics } from "@next/third-parties/google";
+
+// import { cookies } from "next/headers";
 
 const font = Source_Sans_3({
   subsets: ["latin"],
@@ -77,6 +79,7 @@ export default function RootLayout({
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossOrigin="anonymous"
       />
+      <GoogleAnalytics gaId="G-VKSXHFMYVP" />
     </html>
   );
 }
