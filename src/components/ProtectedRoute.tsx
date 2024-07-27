@@ -42,9 +42,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             pathname.startsWith("/reset-password/") &&
             pathname.split("/").length === 4
           ) &&
-          userState.message
+          userState.success
         ) {
           messageLogOut();
+        }
+        if (
+          !isLoginPage &&
+          !(pathname === "/forgot-password") &&
+          !(
+            pathname.startsWith("/reset-password/") &&
+            pathname.split("/").length === 4
+          )
+        ) {
+          message.error("You must sign in again to continue");
+          router.push("/account/login");
         }
       }
     };
