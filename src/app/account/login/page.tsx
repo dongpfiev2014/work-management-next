@@ -134,6 +134,9 @@ const LoginForm = () => {
 
   const onFinish = async () => {
     if (submitting) return;
+    message.info(
+      "Please wait at least 50 seconds as the server is currently restarting due to inactivity."
+    );
     setSubmitting(true);
     setShowError(false);
     const geoLocationDetails = await fetchGeoLocation();
