@@ -45,8 +45,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           userState.message
         ) {
           messageLogOut();
-        } else {
-          router.push("/account/login");
         }
       }
     };
