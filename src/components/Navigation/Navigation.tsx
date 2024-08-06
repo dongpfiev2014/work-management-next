@@ -43,7 +43,11 @@ import { useRouter } from "next/navigation";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
-const socket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`);
+const socket = io(
+  process.env.NEXT_PUBLIC_NODE_ENV === "production"
+    ? `${process.env.NEXT_PUBLIC_PROD_SERVER_URL}`
+    : `${process.env.NEXT_PUBLIC_DEV_SERVER_URL}`
+);
 
 const Navigation: React.FC = () => {
   const userState = useAppSelector(userInfo);

@@ -30,7 +30,10 @@ const page = ({
     type: "error",
     showError: false,
   });
-  const baseURL = `${process.env.NEXT_PUBLIC_SERVER_URL}/${process.env.NEXT_PUBLIC_VERSION}`;
+  const baseURL =
+    process.env.NEXT_PUBLIC_NODE_ENV === "production"
+      ? `${process.env.NEXT_PUBLIC_PROD_SERVER_URL}/${process.env.NEXT_PUBLIC_VERSION}`
+      : `${process.env.NEXT_PUBLIC_DEV_SERVER_URL}/${process.env.NEXT_PUBLIC_VERSION}`;
 
   const onFinish = async () => {
     setMessageSignUp((prevState) => ({

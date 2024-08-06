@@ -4,12 +4,15 @@ import axios from "axios";
 const tokenChannel = new BroadcastChannel("token_channel");
 
 const axiosClient = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_SERVER_URL}/${process.env.NEXT_PUBLIC_VERSION}`,
+  baseURL:
+    process.env.NEXT_PUBLIC_NODE_ENV === "production"
+      ? `${process.env.NEXT_PUBLIC_PROD_SERVER_URL}/${process.env.NEXT_PUBLIC_VERSION}`
+      : `${process.env.NEXT_PUBLIC_DEV_SERVER_URL}/${process.env.NEXT_PUBLIC_VERSION}`,
   headers: {
     "Content-Type": "application/json",
   },
   timeout: 50000,
-  withCredentials: true,
+  withCredentials: true, //Important to send cookies with requests
 });
 
 axiosClient.interceptors.request.use(
