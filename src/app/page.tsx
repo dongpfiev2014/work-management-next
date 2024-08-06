@@ -746,7 +746,9 @@ export default function Home() {
                                     {(provided, snapshot) => (
                                       <div
                                         ref={
-                                          index === 0 ? ref : provided.innerRef
+                                          index === 0 && openTour
+                                            ? ref
+                                            : provided.innerRef
                                         }
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
