@@ -19,6 +19,7 @@ import {
   Statistic,
   Tag,
   Tooltip,
+  Tour,
   Typography,
 } from "antd";
 import styles from "./page.module.css";
@@ -43,7 +44,7 @@ import {
   FcLeave,
   FcList,
 } from "react-icons/fc";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   DragDropContext,
   Draggable,
@@ -53,6 +54,7 @@ import {
 import type { ProgressProps } from "antd";
 import axiosClient from "@/apis/axiosClient";
 import TaskDetail from "@/components/TaskDetail";
+import type { TourProps } from "antd";
 
 interface Task {
   _id: string;
@@ -432,11 +434,52 @@ export default function Home() {
   const [allColumnsEmpty, setAllColumnsEmpty] = useState(false);
   const [progressColor, setProgressColor] = useState(conicColors);
   const screens = Grid.useBreakpoint();
+  const ref = useRef(null);
+  const [openTour, setOpenTour] = useState<boolean>(false);
+  const [tasksLoaded, setTasksLoaded] = useState(false);
 
   useEffect(() => {
     setWinReady(true);
     fetchPersonalTasks();
   }, []);
+
+  useEffect(() => {
+    const isTourCompleted = localStorage.getItem("tourCompleted");
+    if (screens.md && !isTourCompleted && tasksLoaded) {
+      const timer = setTimeout(() => {
+        setOpenTour(true);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    } else setOpenTour(false);
+  }, [screens.md, tasksLoaded]);
+
+  const steps: TourProps["steps"] = [
+    {
+      title: "Drag and drop",
+      description: "Drag and drop tasks",
+      placement: "right",
+      cover: (
+        <>
+          <video
+            className="w-100 h-100"
+            src={require("../../public/WorkManagement - Drag and Drop.mp4")}
+            autoPlay
+            loop
+            muted
+            style={{ borderRadius: "15px" }}
+          />
+        </>
+      ),
+      target: () => ref.current,
+    },
+    {
+      title: "Click",
+      description: "Click to see details or comment",
+      placement: "top",
+      target: () => ref.current,
+    },
+  ];
 
   const checkIfAllColumnsAreEmpty = (columns: Columns) => {
     return Object.values(columns).every((column) => column.items.length === 0);
@@ -457,6 +500,7 @@ export default function Home() {
           setCurrentData(response.data.data);
         }
       }
+      setTasksLoaded(true);
     } catch (err) {
       // console.log("Failed to fetch personal tasks", err);
     }
@@ -701,7 +745,9 @@ export default function Home() {
                                   >
                                     {(provided, snapshot) => (
                                       <div
-                                        ref={provided.innerRef}
+                                        ref={
+                                          index === 0 ? ref : provided.innerRef
+                                        }
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                         style={{
@@ -715,7 +761,11 @@ export default function Home() {
                                         }}
                                       >
                                         <Popover
-                                          content={<TaskDetail task={item} />}
+                                          content={
+                                            !openTour && (
+                                              <TaskDetail task={item} />
+                                            )
+                                          }
                                           trigger="click"
                                           placement="bottom"
                                           style={{ width: "100%" }}
@@ -885,6 +935,14 @@ export default function Home() {
                 )}
               </DragDropContext>
             </Row>
+            <Tour
+              open={openTour}
+              onClose={() => {
+                setOpenTour(false);
+                localStorage.setItem("tourCompleted", "true");
+              }}
+              steps={steps}
+            />
           </Flex>
         ) : null}
       </Flex>
